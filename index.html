@@ -2,10 +2,84 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+
+		<link href="css/nethack.css" rel="stylesheet">
+		<link href="css/main.css" rel="stylesheet">
+
+		<!--
+			Avoid Chromium transition on page load bug
+			https://bugs.chromium.org/p/chromium/issues/detail?id=167083
+			https://bugs.chromium.org/p/chromium/issues/detail?id=332189
+		  -->
+		<style>
+			#title-name {
+				font-size: 24px;
+				display: inline-block;
+				transition-duration: var(--title-name-transition-duration);
+			}
+		</style>
+
+		<noscript>
+			<style>
+				#theme-togglers {
+					display: none;
+				}
+			</style>
+		</noscript>
+
 		<title>Jan Ebert ♥</title>
 	</head>
+
 	<body>
-		<h1>Under construction</h1>
-		<p>This site is still being built...<br>Please take another look later.</p>
+		<header>
+			<h4>Aloha Visitor, welcome to <span id="name-place"><h1 id="title-name">Jan Ebert</h1>'s</span>!<span class="pre-spaced">  </span>You are a neutral human Tourist.</h4>
+			<div id="theme-togglers">
+				<small>
+					<input type="checkbox" name="monospace-toggle" id="monospace-toggle"><label for="monospace-toggle"> Toggle monospacing</label><input type="checkbox" name="brightness-mode-toggle" id="brightness-mode-toggle"><label for="brightness-mode-toggle"> Toggle brightness</label>
+				</small>
+			</div>
+			<hr>
+		</header>
+
+		<article id="main-content">
+			<section id="my-room">
+				<div class="room">
+					<p>
+						<span title="wall">-------------</span><br>
+						<span title="wall">|</span><span title="floor of a room">.</span><span title="60 scrolls of Euler">?</span><span title="floor of a room">.</span><span title="a spellbook of Rubick">+</span><span title="a scroll of gold detection">?</span><span title="a magic harp">(</span><span title="floor of a room">.</span><span title="a spellbook of bitshift">+</span><span title="floor of a room">.</span><span title="299792458 gold pieces">$</span><span title="1597463007 gold pieces">$</span><span title="wall">|</span><br>
+						<span title="wall">|</span><span title="floor of a room">..</span><span title="a NARPAS SWORD">)</span><span title="a scroll of confuse visitor">?</span><span title="throne">\</span><span title="human software engineer called Jan">@</span><span title="a scroll of charming">?</span><span title="a spellbook of Emacs">+</span><span title="a potion of speed demon">!</span><span title="a scroll of stinking cloud">?</span><span title="19692007 gold pieces">$</span><span title="wall">|</span><br>
+						<span title="wall">--</span><span title="closed door">+</span><span title="wall">----------</span></p>
+				</div>
+			</section>
+
+			<section>
+				<p>Hey, I'm Jan! I like optimizing loops, thinking in parallel, applying mathematics, and hardcore challenges.</p>
+				<p>For some years, I've been heavily invested in deep learning; my favorite projects include:</p>
+				<ul>
+					<li><a href="https://github.com/janEbert/SMWLevelGenerator">Super Mario World level generation framework</a></li>
+					<li><a href="https://github.com/janEbert/rldurak">Reinforcement learning for Durak</a></li>
+					<li><a href="https://github.com/janEbert/GANerator">Generative adversarial network framework</a></li>
+				</ul>
+				<p>As I have noticed some interest in the project, I am currently working on a rewrite of the Durak reinforcement learning environment in <a href="https://rust-lang.org">Rust</a>. This will result in a high-performance <a href="https://github.com/openai/gym">Gym</a> environment striking the fine balance between a relatively simple but reward-sparse reinforcement learning task. An optimal agent needs to plan for the future to obtain the delayed win-or-lose reward.<br>Aside from that, Durak is also really fun!</p>
+			</section>
+		</article>
+
+		<footer>
+			<hr>
+			<address>
+				<span id="contact-text">Please contact me at <a href="mailto:janpublicebert@posteo.net">janpublicebert@posteo.net</a>.</span>
+			</address>
+			<div id="status-lines">
+				<span id="nethack-name"></span><a href="https://nethack.org" title="The design reference" id="nethack-attributes"></a>
+				<br>
+				<span href="test" id="nethack-stats"></span>
+			</div>
+
+			<span id="footer-copyright">(C)&nbsp;<time datetime="2020">2020</time> Jan Ebert</span>
+		</footer>
+
+	<script src="js/theme-switcher.js"></script>
+
 	</body>
 </html>

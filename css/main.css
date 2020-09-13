@@ -1,0 +1,143 @@
+/* General */
+
+:root {
+	--sans-fonts: Fira Sans, DejaVu Sans, sans-serif;
+	--min-height: 96vh;
+	--max-width: 50em;
+
+	--text-color-light: #101010;
+	--background-color-light: #fafafa;
+
+	--text-color-dark: #efefef;
+	--background-color-dark: #050505;
+
+	--visited-link-color: #7f7f7f;
+
+	--title-name-transition-duration: 0.1s;
+}
+
+body {
+	font-size: 16px;
+	line-height: 1.6;
+
+	color: var(--text-color-light);
+	background-color: var(--background-color-light);
+
+	min-height: var(--min-height);
+	max-width: var(--max-width);
+	margin: 1em auto;
+	padding: 0 .65em;
+
+	display: flex;
+	flex-direction: column;
+}
+
+/* Color themes */
+
+/* Bright color scheme by default */
+
+@media (prefers-color-scheme: dark) {
+	body {
+		color: var(--text-color-dark);
+		background-color: var(--background-color-dark);
+	}
+}
+
+/* Header */
+
+header,
+article,
+footer
+{
+	flex-shrink: 0;
+}
+
+h4 {
+	font-size: inherit;
+	margin: .6em 0;
+	display: inline;
+}
+
+#name-place {
+	white-space: nowrap;
+}
+
+#title-name {
+	margin: 0;
+}
+
+#title-name:hover {
+	transform: rotate(-8deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#title-name:hover {
+		transform: none;
+	}
+}
+
+#theme-togglers {
+	display: inline-block;
+}
+
+#monospace-toggle + label {
+	margin-right: 1.2em;
+}
+
+/* Main content */
+
+#main-content {
+	flex-grow: 1;
+}
+
+/* Room */
+
+@media print {
+	#my-room {
+		display: none;
+	}
+}
+
+#my-room {
+	float: right;
+	margin-right: 0;
+}
+
+@media (max-width: 960px) {
+	#my-room {
+		display: none;
+	}
+}
+
+/* Links */
+
+a:visited {
+	color: var(--visited-link-color);
+}
+
+/* Footer */
+
+footer {
+	margin-top: .4em;
+	max-width: var(--max-width);
+	width: 100%;
+}
+
+#contact-text {
+	display: inline-block;
+	margin-bottom: .5em;
+}
+
+/* Status lines */
+
+#nethack-attributes {
+	text-decoration: inherit;
+	color: inherit;
+}
+
+#footer-copyright {
+	display: block;
+	clear: right;
+	text-align: right;
+	margin-left: var(--float-margin);
+}
