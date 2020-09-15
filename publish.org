@@ -57,6 +57,8 @@ the environment is static."
 				   ;; :preparation-function
 				   ;; jan-website--prepare-publish-to-html
 				   :publishing-function org-html-publish-to-html
+
+				   :exclude "_.org$"
 				   :recursive t
 
 				   :auto-sitemap t
@@ -81,6 +83,7 @@ the environment is static."
 				   :publishing-directory ,(expand-file-name "css" build-dir)
 				   :publishing-function org-publish-attachment
 				   :base-extension "css"
+				   :exclude "_.css$"
 				   )
 
 				  (
@@ -89,6 +92,7 @@ the environment is static."
 				   :publishing-directory ,(expand-file-name "js" build-dir)
 				   :publishing-function org-publish-attachment
 				   :base-extension "js"
+				   :exclude "_.js$"
 				   )
 
 				  (
