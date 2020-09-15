@@ -15,18 +15,17 @@
 						 (expand-file-name "js" js-parent-dir)
 						 parent-dir)))
 
-  (setq-local
-   org-html-head
-   (concat org-html-head
-		   (org-remove-indentation (concat "\
+  (setq-local org-html-head
+			  (concat org-html-head
+					  (org-remove-indentation (concat "\
 		<link href=\"" relative-css-dir "/nethack.css\" rel=\"stylesheet\">
 		<link href=\"" relative-css-dir "/main.css\" rel=\"stylesheet\">
-		<link rel=\"icon\" href=\"favicon.ico\">\
+		<!--link rel=\"icon\" href=\"favicon.ico\"-->\
 ")))
 
-   org-html-head-extra
-   (concat org-html-head-extra
-		   (org-remove-indentation (concat "\
+			  org-html-head-extra
+			  (concat org-html-head-extra
+					  (org-remove-indentation (concat "\
 		<script src=\"" relative-js-dir "/theme-switcher.js\" defer></script>
 
 		<!--

@@ -113,4 +113,5 @@ class JanWebsiteThemeSwitcher {
 	}
 }
 
+
 JanWebsiteThemeSwitcher.init();

@@ -43,7 +43,7 @@ The modifications must be pure so no matter how often the function is run,
 the environment is static."
   (let* ((project-base-dir (expand-file-name "."))
 		 (build-dir
-		  ;;		"~/Downloads/personal-website"
+		  ;; "~/Downloads/personal-website"
 		  (expand-file-name "build" project-base-dir)
 		  ))
 
