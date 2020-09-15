@@ -20,7 +20,7 @@
 				   relative-sitemap
 				   "\" title=\"Sitemap\" class=\"hidden-link\" id=\"nethack-name\"></a><a href=\"https://nethack.org\" title=\"The design reference\" class=\"hidden-link\" id=\"nethack-attributes\"></a>
 				<br>
-				<span href=\"test\" id=\"nethack-stats\"></span>
+				<span id=\"nethack-stats\"></span>
 			</div>
 
 			<span id=\"footer-copyright\">(C)&nbsp;<time datetime=\""
