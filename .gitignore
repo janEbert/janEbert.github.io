@@ -1,0 +1,8 @@
+/publish.el
+theindex.inc
+/build/
+
+# Recommended for local excludes
+# *_.org
+# *_.js
+# *_.css
