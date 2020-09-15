@@ -4,8 +4,8 @@
 #+include: "../includes/prelude-without-title.org"
 #+include: "../includes/my-room.org"
 
-Hey, I'm Jan! I like optimizing loops, thinking in parallel, applying
-mathematics, and hardcore challenges.
+Hey, I'm Jan (or [[https://github.com/janEbert][janEbert on GitHub]])! I like optimizing loops,
+thinking in parallel, applying mathematics, and hardcore challenges.
 
 For some years, I've been heavily invested in deep learning; my
 favorite projects include:
