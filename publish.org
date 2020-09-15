@@ -1,5 +1,5 @@
-#+begin_src emacs-lisp :exports results :results none :var project-setup=setup-project :tangle yes
-;; Automatically calls the setup function below.
+#+begin_src emacs-lisp :exports results :results none :var project-setup=setup-project :tangle no
+;; Automatically defines the setup function below.
 (jan-website--setup-project)
 (org-publish-project "personal-website")
 ;; Uncomment to force re-generating all files
@@ -35,6 +35,8 @@
 
 #+name: setup-project
 #+begin_src emacs-lisp :exports results :results none :tangle yes
+(require 'ox-publish)
+
 (defun jan-website--setup-project ()
   "Setup the project's publishing environment.
 The modifications must be pure so no matter how often the function is run,
@@ -131,4 +133,11 @@ the environment is static."
 			"\n\n#+include: \"" relative-include-dir "/prelude.org\"\n"
 			"#+include: \"" relative-include-dir "/my-room.org\"\n\n"
 			(org-list-to-org list) "\n")))
+#+end_src
+
+#+begin_src emacs-lisp :exports results :results none :var project-setup=setup-project :tangle yes
+(jan-website--setup-project)
+(org-publish-remove-all-timestamps)
+(org-publish-reset-cache)
+(org-publish-project "personal-website" t)
 #+end_src
