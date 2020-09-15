@@ -1,0 +1,153 @@
+#+begin_src emacs-lisp :exports results :results none
+(setq-local org-html-indent nil)
+(setq-local org-html--pre/postamble-class "org-status")
+(setq-local org-html-divs '((preamble "header" "preamble")
+							(content "article" "main-content")
+							(postamble "footer" "postamble")))
+(setq-local org-html-home/up-format "")
+(setq-local org-html-self-link-headlines t)
+(setq-local org-html-use-infojs nil)
+
+(defun jan-website--org-export-html-block-macro-expansions (text backend info)
+  "Expand macros in top-level html export blocks in a html-derived backend."
+  (when (and (org-export-derived-backend-p backend 'html)
+			 (string= (jan-website--export-block-type text info) "HTML"))
+
+	(let* ((replace-symbol-regexp "\\(:\\)")
+		   (symbol-replacement-string
+			(concat
+			 (jan-website--find-non-matching-string
+			  text "___ORG-SYMBOL-INSERT___")
+			 " "))
+		   ;; We insert some text to expand macros that Org does not want to.
+		   (replaced-text
+			(replace-regexp-in-string
+			 (concat replace-symbol-regexp "{{{")
+			 (concat "\\1" symbol-replacement-string "{{{") text t))
+		   (expanded-text
+			(jan-website--expand-org-macros replaced-text org-macro-templates)))
+	  ;; And we remove our inserts.
+	  (replace-regexp-in-string symbol-replacement-string ""
+								expanded-text t t))))
+
+(defun jan-website--export-block-type (text info)
+  "Return the type of the first export block matching TEXT in INFO.
+Return nil if no match was found."
+  (let ((export-block-type)
+		(block-list (cddr (nth 2 (plist-get info :parse-tree)))))
+	(while (and block-list (not export-block-type))
+	  (let ((export-elem (car block-list)))
+		(if (and (eq (org-element-type export-elem) 'export-block)
+				 (string= (org-html-export-block export-elem nil info) text))
+			(setq export-block-type (org-element-property :type export-elem))
+		  (setq block-list (cdr block-list)))))
+	export-block-type))
+
+(defun jan-website--find-non-matching-string (text string-base)
+  "Return a string based on STRING-BASE that is not contained in TEXT.
+STRING-BASE is concatenated with random numbers."
+  (let ((non-matching-string string-base))
+	(while (string-match-p (regexp-quote non-matching-string) text)
+	  (setq non-matching-string
+			(concat non-matching-string
+					(number-to-string (random 100)))))
+	non-matching-string))
+
+(defun jan-website--expand-org-macros (text macro-templates)
+  "Replace all macros given by MACRO-TEMPLATES in TEXT."
+  (with-temp-buffer
+	(princ text (current-buffer))
+	(org-macro-replace-all macro-templates)
+	(buffer-string)))
+
+(defun jan-website--export-reference (datum info)
+  (let ((cache (plist-get info :internal-references)))
+	(or (car (rassq datum cache))
+		(let* ((crossrefs (plist-get info :crossrefs))
+			   (cells (org-export-search-cells datum))
+			   ;; Preserve any pre-existing association between
+			   ;; a search cell and a reference, i.e., when some
+			   ;; previously published document referenced a location
+			   ;; within current file (see
+			   ;; `org-publish-resolve-external-link').
+			   ;;
+			   ;; However, there is no guarantee that search cells are
+			   ;; unique, e.g., there might be duplicate custom ID or
+			   ;; two headings with the same title in the file.
+			   ;;
+			   ;; As a consequence, before re-using any reference to
+			   ;; an element or object, we check that it doesn't refer
+			   ;; to a previous element or object.
+			   (new
+				(or
+				 (cl-some
+				  (lambda (cell)
+					(let ((stored (cdr (assoc cell crossrefs))))
+					  (when stored
+						(let ((old
+							   (if (stringp stored) stored
+								 (org-export-format-reference stored))))
+						  (and (not (assoc old cache)) stored)))))
+				  cells)
+				 (when (and (eq (org-element-type datum) 'headline)
+							(org-export-derived-backend-p
+							 (plist-get info :back-end) 'html))
+				   (jan-website--new-reference datum cache))
+				 (org-export-new-reference cache)))
+			   (reference-string (if (stringp new) new
+								   (org-export-format-reference new))))
+		  ;; Cache contains both data already associated to
+		  ;; a reference and in-use internal references, so as to make
+		  ;; unique references.
+		  (dolist (cell cells) (push (cons cell new) cache))
+		  ;; Retain a direct association between reference string and
+		  ;; DATUM since (1) not every object or element can be given
+		  ;; a search cell (2) it permits quick lookup.
+		  (push (cons reference-string datum) cache)
+		  (plist-put info :internal-references cache)
+		  reference-string))))
+
+(defun jan-website--new-reference (datum references)
+  (or (org-element-property :CUSTOM_ID datum)
+	  (let* ((title (org-element-property :raw-value datum))
+	  (abc (message ">< %s" title))
+			 (reference-id (jan-website--encode-reference title))
+	  (abc (message ">>< %s" reference-id))
+			 (parent datum)
+			 (is-not-unique))
+		(while (and (setq is-not-unique (rassoc reference-id references))
+					(setq parent (org-element-property :parent parent))
+					(setq title (org-element-property :raw-value parent)))
+		  (setq reference-id (concat (jan-website--encode-reference title)
+									 "--" reference-id)))
+		(when is-not-unique
+		  (let ((reference-base (concat reference-id "-"))
+				(counter 2))
+			(while (rassoc reference-id references)
+			  (setq reference-id (concat reference-base
+										 (number-to-string counter))
+					counter (1+ counter)))))
+		reference-id)))
+
+(defun jan-website--encode-reference (title)
+  (let ((encoded-title (url-hexify-string (substring-no-properties title))))
+	(replace-regexp-in-string "%20" "-" encoded-title t t)))
+
+;; (add-function :override (local 'org-export-get-reference)
+;; 			  'jan-website--export-reference)
+
+;; (remove-function (local 'org-export-get-reference)
+;; 				 'jan-website--export-reference)
+
+(advice-add 'org-export-get-reference
+			:override 'jan-website--export-reference)
+
+;; (advice-remove 'org-export-get-reference 'jan-website--export-reference)
+
+(let ((export-block-filters
+ 	   (copy-list org-export-filter-export-block-functions)))
+   (push 'jan-website--org-export-html-block-macro-expansions
+ 		export-block-filters)
+   (setq-local org-export-filter-export-block-functions
+ 			  export-block-filters))
+#+end_src

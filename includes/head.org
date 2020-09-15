@@ -1,0 +1,54 @@
+#+begin_src emacs-lisp :exports results :results none
+;; TODO check if dominating file is directory;
+;; otherwise get parent of the directory containing the dominating file
+
+;; We walk up one directory so the org source files can reside in
+;; their own folder.
+(let* ((parent-dir
+		(file-name-directory (directory-file-name default-directory)))
+	   (css-parent-dir (locate-dominating-file parent-dir "css"))
+	   (relative-css-dir (file-relative-name
+						  (expand-file-name "css" css-parent-dir)
+						  parent-dir))
+	   (js-parent-dir (locate-dominating-file parent-dir "js"))
+	   (relative-js-dir (file-relative-name
+						 (expand-file-name "js" js-parent-dir)
+						 parent-dir)))
+
+  (setq-local
+   org-html-head
+   (concat org-html-head
+		   (org-remove-indentation (concat "\
+		<link href=\"" relative-css-dir "/nethack.css\" rel=\"stylesheet\">
+		<link href=\"" relative-css-dir "/main.css\" rel=\"stylesheet\">
+		<link rel=\"icon\" href=\"favicon.ico\">\
+")))
+
+   org-html-head-extra
+   (concat org-html-head-extra
+		   (org-remove-indentation (concat "\
+		<script src=\"" relative-js-dir "/theme-switcher.js\" defer></script>
+
+		<!--
+			Avoid Chromium transition on page load bug
+			https://bugs.chromium.org/p/chromium/issues/detail?id=167083
+			https://bugs.chromium.org/p/chromium/issues/detail?id=332189
+		-->
+
+		<style>
+			#title-name {
+				font-size: 24px;
+				display: inline-block;
+				transition-duration: var(--title-name-transition-duration);
+			}
+		</style>
+
+		<noscript>
+			<style>
+				#theme-togglers {
+					display: none;
+				}
+			</style>
+		</noscript>\
+")))))
+#+end_src

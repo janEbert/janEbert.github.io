@@ -1,0 +1,11 @@
+#+begin_export html
+			<section id="my-room">
+				<div class="room">
+					<p>
+						<span title="wall">-------------</span><br>
+						<span title="wall">|</span><span title="floor of a room">.</span><span title="60 scrolls of Euler">?</span><span title="floor of a room">.</span><span title="a spellbook of Rubick">+</span><span title="a scroll of gold detection">?</span><span title="a magic harp">(</span><span title="floor of a room">.</span><span title="a spellbook of bitshift">+</span><span title="floor of a room">.</span><span title="299792458 gold pieces">$</span><span title="1597463007 gold pieces">$</span><span title="wall">|</span><br>
+						<span title="wall">|</span><span title="floor of a room">..</span><span title="a NARPAS SWORD">)</span><span title="a scroll of confuse visitor">?</span><span title="throne">\</span><span title="human software engineer called Jan">@</span><span title="a scroll of charming">?</span><span title="a spellbook of Emacs">+</span><span title="a potion of speed demon">!</span><span title="a scroll of stinking cloud">?</span><span title="19692007 gold pieces">$</span><span title="wall">|</span><br>
+						<span title="wall">--</span><span title="closed door">+</span><span title="wall">----------</span></p>
+				</div>
+			</section>
+#+end_export

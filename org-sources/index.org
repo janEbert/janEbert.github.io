@@ -1,0 +1,22 @@
+#+title: {{{author}}} ♥
+#+index: Home
+
+#+include: "../includes/prelude-without-title.org"
+#+include: "../includes/my-room.org"
+
+Hey, I'm Jan! I like optimizing loops, thinking in parallel, applying
+mathematics, and hardcore challenges.
+
+For some years, I've been heavily invested in deep learning; my
+favorite projects include:
+- [[https://github.com/janEbert/SMWLevelGenerator][Super Mario World level generation framework]]
+- [[https://github.com/janEbert/rldurak][Reinforcement learning for Durak]]
+- [[https://github.com/janEbert/GANerator][Generative adversarial network framework]]
+
+As I have noticed some interest in the project, I am currently working
+on a rewrite of the Durak reinforcement learning environment in [[https://rust-lang.org][Rust]].
+This will result in a high-performance [[https://github.com/openai/gym][Gym]] environment striking the
+fine balance between a relatively simple but reward-sparse
+reinforcement learning task. An optimal agent needs to plan for the
+future to obtain the delayed win-or-lose reward.\\
+Aside from that, Durak is also really fun!

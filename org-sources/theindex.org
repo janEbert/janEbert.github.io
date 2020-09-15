@@ -1,0 +1,5 @@
+#+TITLE: Index
+#+include: "../includes/prelude.org"
+#+options: H:0
+
+#+INCLUDE: "theindex.inc"

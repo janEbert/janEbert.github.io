@@ -1,0 +1,124 @@
+#+begin_src emacs-lisp :exports results :results none :var project-setup=setup-project
+;; Automatically calls the setup function below.
+(org-publish-project "personal-website")
+;; Uncomment to force re-generating all files
+;; (org-publish-remove-all-timestamps)
+;; (org-publish-reset-cache)
+;; (org-publish-project "personal-website" t)
+#+end_src
+
+# Append project to global project-alist
+#+begin_src emacs-lisp :results none :var project-setup=setup-project
+(setq-default org-publish-project-alist
+			  (append (default-value 'org-publish-project-alist)
+					  (buffer-local-value
+					   'org-publish-project-alist (current-buffer))))
+#+end_src
+
+# Set project as global project-alist
+#+begin_src emacs-lisp :results none :var project-setup=setup-project
+(setq-default org-publish-project-alist
+			  (buffer-local-value
+			   'org-publish-project-alist (current-buffer)))
+#+end_src
+
+# Add project as directory variable
+#+begin_src emacs-lisp :results none :var project-setup=setup-project
+(add-dir-local-variable 'org-mode 'org-publish-project-alist
+						(buffer-local-value
+						 'org-publish-project-alist (current-buffer)))
+#+end_src
+
+#+name: setup-project
+#+begin_src emacs-lisp :exports results :results none
+(let* ((project-base-dir (expand-file-name "."))
+	   (build-dir
+;;		"~/Downloads/personal-website"
+		(expand-file-name "build" project-base-dir)
+		))
+
+  (setq-local org-publish-project-alist
+		`(
+		  (
+		   "website-org-sources"
+		   :base-directory ,(expand-file-name "org-sources" project-base-dir)
+		   :publishing-directory ,(expand-file-name "" build-dir)
+;;		   :preparation-function jan-website--prepare-publish-to-html
+		   :publishing-function org-html-publish-to-html
+		   :recursive t
+
+		   :auto-sitemap t
+		   :sitemap-title "Sitemap"
+		   :sitemap-format-entry jan-website--format-sitemap-entry
+		   :sitemap-function jan-website--publish-sitemap-with-includes
+
+		   :makeindex t
+		   )
+
+		  (
+		   "website-content"
+		    :components
+			(
+			 "website-org-sources"
+			)
+		   )
+
+		  (
+		   "website-css"
+		   :base-directory ,(expand-file-name "css" project-base-dir)
+		   :publishing-directory ,(expand-file-name "css" build-dir)
+		   :publishing-function org-publish-attachment
+		   :base-extension "css"
+		   )
+
+		  (
+		   "website-js"
+		   :base-directory ,(expand-file-name "js" project-base-dir)
+		   :publishing-directory ,(expand-file-name "js" build-dir)
+		   :publishing-function org-publish-attachment
+		   :base-extension "js"
+		   )
+
+		  (
+		   "website-includes"
+		   :components
+		   (
+			"website-css"
+			"website-js"
+			)
+		   )
+
+		  (
+		   "personal-website"
+		   :components
+		   (
+			"website-content"
+			"website-includes"
+			)
+		   )
+		  )))
+
+(defun jan-website--prepare-publish-to-html (project-property-list)
+  (let* ((include-parent-dir
+		  (locate-dominating-file default-directory "includes"))
+		 (include-dir (expand-file-name "includes" include-parent-dir))
+		 (include-files '("prelude-elisp.org" "head.org"
+						  "html-preamble.org" "html-postamble.org")))
+	(mapc
+	 (lambda (include-file)
+	   (org-babel-load-file (expand-file-name include-file include-dir)))
+	 include-files)))
+
+(defun jan-website--format-sitemap-entry (entry style project)
+  (if (and (string= (file-name-nondirectory entry) "index.org")
+		   (not (directory-name-p entry)))
+	  (format "[[file:%s][Home]]" entry)
+	(org-publish-sitemap-default-entry entry style project)))
+
+(defun jan-website--publish-sitemap-with-includes (title list)
+  (let ((relative-include-dir "../includes"))
+	(concat "#+TITLE: " title "\n#+INDEX: " title
+			"\n\n#+include: \"" relative-include-dir "/prelude.org\"\n"
+			"#+include: \"" relative-include-dir "/my-room.org\"\n\n"
+			(org-list-to-org list) "\n")))
+#+end_src

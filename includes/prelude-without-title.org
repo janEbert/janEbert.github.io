@@ -1,0 +1,39 @@
+# Default export options
+#+options: ':t *:t -:t ::t <:t H:3 \n:nil ^:{} arch:headline author:t
+#+options: broken-links:nil c:nil creator:nil d:(not "LOGBOOK")
+#+options: date:t e:t email:t f:t inline:t num:nil p:nil pri:nil
+#+options: prop:nil stat:t tags:t tasks:t tex:t timestamp:nil title:nil
+#+options: toc:nil todo:t |:t
+
+#+author: Jan Ebert
+#+date: {{{time(%Y-%m-%d)}}}
+# +date: {{{time(%s)}}}
+# +date: <2020-09-12 Sa>
+#+email: janpublicebert@posteo.net
+
+#+language: en
+#+select_tags: export
+#+exclude_tags: noexport
+
+# HTML export options
+#+options: html-link-use-abs-url:nil html-postamble:t
+#+options: html-preamble:t html-scripts:nil html-style:nil html5-fancy:t
+#+html_doctype: html5
+#+html_container: section
+# +html_container: div
+#+description: Homepage of software engineer Jan Ebert containing a blog and web applications.
+#+keywords:
+#+html_link_home: www.jan-ebert.com
+#+html_link_up:
+#+html_mathjax:
+
+#+subtitle:
+#+infojs_opt:
+#+latex_header:
+
+#+include: "head.org"
+
+#+include: "prelude-elisp.org"
+
+#+include: "html-preamble.org"
+#+include: "html-postamble.org"

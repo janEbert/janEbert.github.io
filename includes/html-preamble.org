@@ -1,0 +1,24 @@
+#+begin_src emacs-lisp :exports results :results none
+(setq-local
+ org-html-preamble-format
+ (let* ((preamble-alist (copy-list org-html-preamble-format))
+		(index-parent-dir
+		 (locate-dominating-file default-directory "index.org"))
+		(relative-index-dir
+		 (directory-file-name (file-relative-name index-parent-dir))))
+   (push
+	(list "en"
+		  (org-remove-indentation
+		   (concat "\
+			<h4>Aloha Visitor, welcome to <span id=\"name-place\"><h1 id=\"title-name\"><a href=\""
+				   relative-index-dir
+				   "/index.html\" accesskey=\"h\" class=\"hidden-link\">%a</a></h1>'s</span>!<span class=\"pre-spaced\">  </span>You are a neutral human Tourist.</h4>
+			<div id=\"theme-togglers\">
+				<small>
+					<input type=\"checkbox\" name=\"monospace-toggle\" id=\"monospace-toggle\"><label for=\"monospace-toggle\"> Toggle monospacing</label><input type=\"checkbox\" name=\"brightness-mode-toggle\" id=\"brightness-mode-toggle\"><label for=\"brightness-mode-toggle\"> Toggle brightness</label>
+				</small>
+			</div>
+			<hr>\
+")))
+	preamble-alist)))
+#+end_src

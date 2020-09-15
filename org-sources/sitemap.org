@@ -1,0 +1,10 @@
+#+TITLE: Sitemap
+#+INDEX: Sitemap
+
+#+include: "../includes/prelude.org"
+#+include: "../includes/my-room.org"
+
+- [[file:theindex.org][Index]]
+- [[file:index.org][Home]]
+- blog
+  - [[file:blog/test.org][Test Blog Post]]

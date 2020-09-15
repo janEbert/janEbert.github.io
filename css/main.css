@@ -115,6 +115,39 @@ a:visited {
 	color: var(--visited-link-color);
 }
 
+h1[id] > a[href^="#"],
+h2[id] > a[href^="#"],
+h3[id] > a[href^="#"],
+h4[id] > a[href^="#"],
+h5[id] > a[href^="#"],
+h6[id] > a[href^="#"],
+li > a[id] + a[href^="#"]
+{
+	text-decoration: inherit;
+	color: inherit;
+}
+
+h1[id] > a[href^="#"]:hover::after,
+h2[id] > a[href^="#"]:hover::after,
+h3[id] > a[href^="#"]:hover::after,
+h4[id] > a[href^="#"]:hover::after,
+h5[id] > a[href^="#"]:hover::after,
+h6[id] > a[href^="#"]:hover::after,
+li > a[id] + a[href^="#"]:hover::after
+{
+	content: " (link)";
+	font-size: small;
+}
+
+.hidden-link {
+	text-decoration: inherit;
+	color: inherit;
+}
+
+.hidden-link:visited {
+	color: inherit;
+}
+
 /* Footer */
 
 footer {
@@ -129,11 +162,6 @@ footer {
 }
 
 /* Status lines */
-
-#nethack-attributes {
-	text-decoration: inherit;
-	color: inherit;
-}
 
 #footer-copyright {
 	display: block;

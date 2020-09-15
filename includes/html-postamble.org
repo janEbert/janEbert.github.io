@@ -1,0 +1,33 @@
+#+begin_src emacs-lisp :exports results :results none
+(setq-local
+ org-html-postamble-format
+ (let* ((sitemap-parent-dir
+		 (locate-dominating-file default-directory "sitemap.org"))
+		(relative-sitemap
+		 (file-relative-name
+		  (expand-file-name "sitemap.html" sitemap-parent-dir)))
+		(postamble-alist (copy-list org-html-postamble-format)))
+   (push
+	(list "en"
+		  (org-remove-indentation
+		   (concat "\
+			<hr>
+			<address>
+				<span id=\"contact-text\">Please contact me at %e.</span>
+			</address>
+			<div id=\"status-lines\">
+				<a href=\""
+				   relative-sitemap
+				   "\" title=\"Sitemap\" class=\"hidden-link\" id=\"nethack-name\"></a><a href=\"https://nethack.org\" title=\"The design reference\" class=\"hidden-link\" id=\"nethack-attributes\"></a>
+				<br>
+				<span href=\"test\" id=\"nethack-stats\"></span>
+			</div>
+
+			<span id=\"footer-copyright\">(C)&nbsp;<time datetime=\""
+				   (format-time-string "%Y")
+				   "\">"
+				   (format-time-string "%Y")
+				   "</time> Jan Ebert <a accesskey=\"<\" href=\"#top\" title=\"To top of the page\" class=\"hidden-link\" id=\"back-to-top\">&lt;</a><a accesskey=\"t\" href=\"#top\"></a><a accesskey=\">\" href=\"#postamble\"></a><a accesskey=\"b\" href=\"#postamble\"></a></span>\
+")))
+	postamble-alist)))
+#+end_src
