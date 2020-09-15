@@ -6,7 +6,7 @@
 		(relative-sitemap
 		 (file-relative-name
 		  (expand-file-name "sitemap.html" sitemap-parent-dir)))
-		(postamble-alist (copy-list org-html-postamble-format)))
+		(postamble-alist (copy-sequence org-html-postamble-format)))
    (push
 	(list "en"
 		  (org-remove-indentation

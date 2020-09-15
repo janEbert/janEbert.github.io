@@ -1,7 +1,7 @@
 #+begin_src emacs-lisp :exports results :results none
 (setq-local
  org-html-preamble-format
- (let* ((preamble-alist (copy-list org-html-preamble-format))
+ (let* ((preamble-alist (copy-sequence org-html-preamble-format))
 		(index-parent-dir
 		 (locate-dominating-file default-directory "index.org"))
 		(relative-index-dir
