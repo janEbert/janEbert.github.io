@@ -131,6 +131,13 @@ STRING-BASE is concatenated with random numbers."
   (let ((encoded-title (url-hexify-string (substring-no-properties title))))
 	(replace-regexp-in-string "%20" "-" encoded-title t t)))
 
+;; (add-hook 'org-export-before-parsing-hook
+;; 		  (lambda (backend)
+;; 			(when (org-export-derived-backend-p backend 'html)
+;; 			  (add-function :override (local 'org-export-get-reference)
+;; 							'jan-website--export-reference)))
+;; 		  nil t)
+
 ;; (add-function :override (local 'org-export-get-reference)
 ;; 			  'jan-website--export-reference)
 

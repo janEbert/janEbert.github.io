@@ -22,6 +22,7 @@
 #+html_container: section
 # +html_container: div
 #+description: Homepage of software engineer Jan Ebert containing a blog and web applications.
+#+description: Dealing with performance, machine learning, simulations, mathematics and programming languages like Rust, Julia, C, Lisp, Assembly and Python.
 #+keywords:
 #+html_link_home: www.jan-ebert.com
 #+html_link_up:

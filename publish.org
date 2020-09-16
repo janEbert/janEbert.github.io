@@ -53,12 +53,12 @@ the environment is static."
 				   "website-org-sources"
 				   :base-directory ,(expand-file-name "org-sources"
 													  project-base-dir)
-				   :publishing-directory ,(expand-file-name "" build-dir)
+				   :publishing-directory ,(expand-file-name build-dir)
 				   ;; :preparation-function
 				   ;; jan-website--prepare-publish-to-html
 				   :publishing-function org-html-publish-to-html
 
-				   :exclude "_.org$"
+				   :exclude "_\\.org$"
 				   :recursive t
 
 				   :auto-sitemap t
@@ -83,7 +83,7 @@ the environment is static."
 				   :publishing-directory ,(expand-file-name "css" build-dir)
 				   :publishing-function org-publish-attachment
 				   :base-extension "css"
-				   :exclude "_.css$"
+				   :exclude "_\\.css$"
 				   )
 
 				  (
@@ -92,7 +92,15 @@ the environment is static."
 				   :publishing-directory ,(expand-file-name "js" build-dir)
 				   :publishing-function org-publish-attachment
 				   :base-extension "js"
-				   :exclude "_.js$"
+				   :exclude "_\\.js$"
+				   )
+
+				  (
+				   "website-favicon"
+				   :base-directory ,project-base-dir
+				   :publishing-directory ,(expand-file-name build-dir)
+				   :publishing-function org-publish-attachment
+				   :base-extension "svg\\|ico"
 				   )
 
 				  (
@@ -101,6 +109,7 @@ the environment is static."
 				   (
 					"website-css"
 					"website-js"
+					"website-favicon"
 					)
 				   )
 
