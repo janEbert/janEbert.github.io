@@ -1,33 +1,34 @@
 #+begin_src emacs-lisp :exports results :results none :var project-setup=setup-project :tangle no
 ;; Automatically defines the setup function below.
-(jan-website--setup-project)
+(require 'ox-publish)
+
 (org-publish-project "personal-website")
-;; Uncomment to force re-generating all files
+;; Force re-generating all files
+;; Removing timestamps is especially important to get sitemap titles up to date.
 ;; (org-publish-remove-all-timestamps)
+;; This is already called when removing timestamps; we do it again for
+;; forward compatibility.
 ;; (org-publish-reset-cache)
 ;; (org-publish-project "personal-website" t)
 #+end_src
 
-# Append project to global project-alist
+# Append project to global project-alist.
 #+begin_src emacs-lisp :results none :var project-setup=setup-project :tangle no
-(jan-website--setup-project)
 (setq-default org-publish-project-alist
 			  (append (default-value 'org-publish-project-alist)
 					  (buffer-local-value
 					   'org-publish-project-alist (current-buffer))))
 #+end_src
 
-# Set project as global project-alist
+# Set project as global project-alist.
 #+begin_src emacs-lisp :results none :var project-setup=setup-project :tangle no
-(jan-website--setup-project)
 (setq-default org-publish-project-alist
 			  (buffer-local-value
 			   'org-publish-project-alist (current-buffer)))
 #+end_src
 
-# Add project as directory variable
+# Add project as directory variable.
 #+begin_src emacs-lisp :results none :var project-setup=setup-project :tangle no
-(jan-website--setup-project)
 (add-dir-local-variable 'org-mode 'org-publish-project-alist
 						(buffer-local-value
 						 'org-publish-project-alist (current-buffer)))
@@ -40,7 +41,7 @@
 (defun jan-website--setup-project ()
   "Setup the project's publishing environment.
 The modifications must be pure so no matter how often the function is run,
-the environment is static."
+the environment is the same."
   (let* ((project-base-dir (expand-file-name "."))
 		 (build-dir
 		  ;; "~/Downloads/personal-website"
@@ -123,7 +124,12 @@ the environment is static."
 				   )
 				  ))))
 
-(defun jan-website--prepare-publish-to-html (project-property-list)
+;; Could be used if we disregarded prelude and instead put all settings in
+;; the project alist. We could also load prelude here and keep the settings the
+;; way they are now.
+(defun jan-website--prepare-publish-to-html (&optional project-property-list)
+  "Load important setup code for publishing.
+PROJECT-PROPERTY-LIST is ignored."
   (let* ((include-parent-dir
 		  (locate-dominating-file default-directory "includes"))
 		 (include-dir (expand-file-name "includes" include-parent-dir))
@@ -135,22 +141,34 @@ the environment is static."
 	 include-files)))
 
 (defun jan-website--format-sitemap-entry (entry style project)
+  "Format ENTRY for the sitemap with STYLE in PROJECT.
+The index page is formatted specially with the \"Home\" title. Other entries use
+`org-publish-sitemap-default-entry'."
   (if (and (string= (file-name-nondirectory entry) "index.org")
 		   (not (directory-name-p entry)))
 	  (format "[[file:%s][Home]]" entry)
 	(org-publish-sitemap-default-entry entry style project)))
 
 (defun jan-website--publish-sitemap-with-includes (title list)
+  "Publish a custom sitemap with TITLE, including project-relevant code.
+The entries in LIST are formatted the usual way."
   (let ((relative-include-dir "../includes"))
 	(concat "#+TITLE: " title "\n#+INDEX: " title
 			"\n\n#+include: \"" relative-include-dir "/prelude.org\"\n"
 			"#+include: \"" relative-include-dir "/my-room.org\"\n\n"
 			(org-list-to-org list) "\n")))
+
+(jan-website--setup-project)
 #+end_src
 
+# Completely clean publishment.
 #+begin_src emacs-lisp :exports results :results none :var project-setup=setup-project :tangle yes
-(jan-website--setup-project)
+(require 'ox-publish)
+
+;; Removing timestamps is especially important to get sitemap titles up to date.
 (org-publish-remove-all-timestamps)
+;; This is already called when removing timestamps; we do it again for
+;; forward compatibility.
 (org-publish-reset-cache)
 (org-publish-project "personal-website" t)
 #+end_src

@@ -1,36 +1,22 @@
 #+begin_src emacs-lisp :exports results :results none
-;; TODO check if dominating file is directory;
-;; otherwise get parent of the directory containing the dominating file
+(require 'ox-html)
 
-;; We walk up one directory so the org source files can reside in
-;; their own folder.
-(let* ((parent-dir
-		(file-name-directory (directory-file-name default-directory)))
-	   (css-parent-dir (locate-dominating-file parent-dir "css"))
-	   (relative-css-dir (file-relative-name
-						  (expand-file-name "css" css-parent-dir)
-						  parent-dir))
-	   (js-parent-dir (locate-dominating-file parent-dir "js"))
-	   (relative-js-dir (file-relative-name
-						 (expand-file-name "js" js-parent-dir)
-						 parent-dir))
-	   (favicon-parent-dir (locate-dominating-file parent-dir "favicon.svg"))
-	   (relative-favicon-dir
-		(directory-file-name (file-relative-name
-							  favicon-parent-dir parent-dir))))
-
-  (setq-local org-html-head
-			  (concat org-html-head
-					  (org-remove-indentation (concat "\
+(defun jan-website--construct-head (relative-css-dir relative-favicon-dir)
+  "Return the Org html head, linking to files in the given directories.
+RELATIVE-CSS-DIR and RELATIVE-FAVICON-DIR are directory paths relative
+to the published index.html."
+  (jan-website--remove-indentation (concat "\
 		<link href=\"" relative-css-dir "/nethack.css\" rel=\"stylesheet\">
 		<link href=\"" relative-css-dir "/main.css\" rel=\"stylesheet\">
 		<link rel=\"icon\" href=\"" relative-favicon-dir "/favicon.svg\">
-		<link rel=\"alternate icon\" href=\"" relative-favicon-dir "/favicon.png\">\
+		<link rel=\"alternate icon\" href=\""
+		relative-favicon-dir "/favicon.png\">\
 ")))
 
-			  org-html-head-extra
-			  (concat org-html-head-extra
-					  (org-remove-indentation (concat "\
+(defun jan-website--construct-head-extra (relative-js-dir)
+  "Return additions to Org html head, linking to files in RELATIVE-JS-DIR.
+RELATIVE-JS-DIR is a directory path relative to the published index.html."
+  (jan-website--remove-indentation (concat "\
 		<script src=\"" relative-js-dir "/theme-switcher.js\" defer></script>
 
 		<!--
@@ -54,5 +40,36 @@
 				}
 			</style>
 		</noscript>\
-")))))
+")))
+
+;; TODO Check if dominating file is directory;
+;; otherwise get parent of the directory containing the dominating file.
+;; TODO We could use some error checks here whether the links are correct.
+
+;; We walk up one directory before locating so the relative path is one
+;; directory less deep. This way, the org source files can reside in their
+;; own folder.
+(let* ((parent-dir
+		(file-name-directory (directory-file-name default-directory)))
+	   (css-parent-dir (locate-dominating-file parent-dir "css"))
+	   (relative-css-dir (file-relative-name
+						  (expand-file-name "css" css-parent-dir)
+						  parent-dir))
+	   (js-parent-dir (locate-dominating-file parent-dir "js"))
+	   (relative-js-dir (file-relative-name
+						 (expand-file-name "js" js-parent-dir)
+						 parent-dir))
+	   (favicon-parent-dir (locate-dominating-file parent-dir "favicon.svg"))
+	   (relative-favicon-dir
+		(directory-file-name (file-relative-name
+							  favicon-parent-dir parent-dir))))
+
+  (setq-local org-html-head
+			  (concat org-html-head
+					  (jan-website--construct-head relative-css-dir
+												   relative-favicon-dir))
+
+			  org-html-head-extra
+			  (concat org-html-head-extra
+					  (jan-website--construct-head-extra relative-js-dir))))
 #+end_src

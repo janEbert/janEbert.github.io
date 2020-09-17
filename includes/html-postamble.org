@@ -1,15 +1,12 @@
 #+begin_src emacs-lisp :exports results :results none
-(setq-local
- org-html-postamble-format
- (let* ((sitemap-parent-dir
-		 (locate-dominating-file default-directory "sitemap.org"))
-		(relative-sitemap
-		 (file-relative-name
-		  (expand-file-name "sitemap.html" sitemap-parent-dir)))
-		(postamble-alist (copy-sequence org-html-postamble-format)))
-   (push
-	(list "en"
-		  (org-remove-indentation
+(require 'ox-html)
+
+(defun jan-website--construct-postamble (relative-sitemap)
+  "Return the Org html postamble format.
+RELATIVE-SITEMAP is a relative path to sitemap.html from the file
+being published."
+  (list "en"
+		  (jan-website--remove-indentation
 		   (concat "\
 			<hr>
 			<address>
@@ -18,7 +15,10 @@
 			<div id=\"status-lines\">
 				<a href=\""
 				   relative-sitemap
-				   "\" title=\"Sitemap\" class=\"hidden-link\" id=\"nethack-name\"></a><a href=\"https://nethack.org\" title=\"The design reference\" class=\"hidden-link\" id=\"nethack-attributes\"></a>
+				   "\
+\" title=\"Sitemap\" class=\"hidden-link\" id=\"nethack-name\"></a>\
+<a href=\"https://nethack.org\" title=\"The design reference\" \
+class=\"hidden-link\" id=\"nethack-attributes\"></a>
 				<br>
 				<span id=\"nethack-stats\"></span>
 			</div>
@@ -27,7 +27,21 @@
 				   (format-time-string "%Y")
 				   "\">"
 				   (format-time-string "%Y")
-				   "</time> Jan Ebert <a accesskey=\"<\" href=\"#top\" title=\"To top of the page\" class=\"hidden-link\" id=\"back-to-top\">&lt;</a><a accesskey=\"t\" href=\"#top\"></a><a accesskey=\">\" href=\"#postamble\"></a><a accesskey=\"b\" href=\"#postamble\"></a></span>\
-")))
-	postamble-alist)))
+				   "</time> Jan Ebert \
+<a accesskey=\"<\" href=\"#top\" title=\"To top of the page\" \
+class=\"hidden-link\" id=\"back-to-top\">&lt;</a>\
+<a accesskey=\"t\" href=\"#top\"></a>\
+<a accesskey=\">\" href=\"#postamble\"></a>\
+<a accesskey=\"b\" href=\"#postamble\"></a></span>\
+"))))
+
+(setq-local
+ org-html-postamble-format
+ (let* ((sitemap-parent-dir
+		 (locate-dominating-file default-directory "sitemap.org"))
+		(relative-sitemap
+		 (file-relative-name
+		  (expand-file-name "sitemap.html" sitemap-parent-dir)))
+		(postamble-alist (copy-sequence org-html-postamble-format)))
+   (push (jan-website--construct-postamble relative-sitemap) postamble-alist)))
 #+end_src

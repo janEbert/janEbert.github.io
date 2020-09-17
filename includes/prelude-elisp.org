@@ -1,4 +1,7 @@
 #+begin_src emacs-lisp :exports results :results none
+(require 'ox-html)
+
+;; Do not indent html files for smaller files and since we don't edit by hand.
 (setq-local org-html-indent nil)
 (setq-local org-html--pre/postamble-class "org-status")
 (setq-local org-html-divs '((preamble "header" "preamble")
@@ -8,8 +11,16 @@
 (setq-local org-html-self-link-headlines t)
 (setq-local org-html-use-infojs nil)
 
+(defun jan-website--remove-indentation (text)
+  "Remove all indentation from TEXT."
+  (replace-regexp-in-string "^\\s-*" "" text t t))
+
+;; TODO I used a zero width space between "top" and the hyphen to suppress the
+;; checkdoc message that I am supposed to put quotes around a Lisp symbol.
 (defun jan-website--org-export-html-block-macro-expansions (text backend info)
-  "Expand macros in top-level html export blocks in a html-derived backend."
+  "Expand macros in top​-level html export blocks in a html-derived backend.
+Expand the macros in TEXT, check using BACKEND and use INFO to only export
+html export blocks."
   (when (and (org-export-derived-backend-p backend 'html)
 			 (string= (jan-website--export-block-type text info) "HTML"))
 
@@ -61,6 +72,10 @@ STRING-BASE is concatenated with random numbers."
 	(buffer-string)))
 
 (defun jan-website--export-reference (datum info)
+  "Return a unique reference ID to DATUM, using its title if it is a headline.
+If the title is not unique, walk up the node tree and prepend parent titles.
+If the ID is still not unique, append an incrementing number until it is.
+Reference IDs are cached in the communication channel INFO."
   (let ((cache (plist-get info :internal-references)))
 	(or (car (rassq datum cache))
 		(let* ((crossrefs (plist-get info :crossrefs))
@@ -108,6 +123,10 @@ STRING-BASE is concatenated with random numbers."
 		  reference-string))))
 
 (defun jan-website--new-reference (datum references)
+  "Return a unique reference ID to the headline DATUM based on its title.
+If the title is not unique, walk up the node tree and prepend parent titles.
+If the ID is still not unique, append an incrementing number until it is.
+Reference IDs are cached in REFERENCES."
   (or (org-element-property :CUSTOM_ID datum)
 	  (let* ((title (org-element-property :raw-value datum))
 			 (reference-id (jan-website--encode-reference title))
@@ -127,9 +146,10 @@ STRING-BASE is concatenated with random numbers."
 					counter (1+ counter)))))
 		reference-id)))
 
-(defun jan-website--encode-reference (title)
-  (let ((encoded-title (url-hexify-string (substring-no-properties title))))
-	(replace-regexp-in-string "%20" "-" encoded-title t t)))
+(defun jan-website--encode-reference (text)
+  "Return a html-encoded reference to TEXT, replacing spaces with hyphens."
+  (let ((encoded-text (url-hexify-string (substring-no-properties text))))
+	(replace-regexp-in-string "%20" "-" encoded-text t t)))
 
 ;; (add-hook 'org-export-before-parsing-hook
 ;; 		  (lambda (backend)

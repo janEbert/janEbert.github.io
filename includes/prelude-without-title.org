@@ -7,8 +7,6 @@
 
 #+author: Jan Ebert
 #+date: {{{time(%Y-%m-%d)}}}
-# +date: {{{time(%s)}}}
-# +date: <2020-09-12 Sa>
 #+email: janpublicebert@posteo.net
 
 #+language: en
@@ -19,11 +17,17 @@
 #+options: html-link-use-abs-url:nil html-postamble:t
 #+options: html-preamble:t html-scripts:nil html-style:nil html5-fancy:t
 #+html_doctype: html5
+
+# Change to div if we ever use infojs.
 #+html_container: section
-# +html_container: div
-#+description: Homepage of software engineer Jan Ebert containing a blog and web applications.
+
+# Description is automatically separated by newlines when redefined.
+#+description: Software engineer Jan Ebert's homepage containing a blog and web applications.
 #+description: Dealing with performance, machine learning, simulations, mathematics and programming languages like Rust, Julia, C, Lisp, Assembly and Python.
+
+# Keywords are automatically separated by spaces when redefined.
 #+keywords:
+
 #+html_link_home: www.jan-ebert.com
 #+html_link_up:
 #+html_mathjax:
@@ -32,9 +36,8 @@
 #+infojs_opt:
 #+latex_header:
 
-#+include: "head.org"
-
 #+include: "prelude-elisp.org"
 
+#+include: "head.org"
 #+include: "html-preamble.org"
 #+include: "html-postamble.org"
