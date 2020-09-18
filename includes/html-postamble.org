@@ -29,7 +29,7 @@ class=\"hidden-link\" id=\"nethack-attributes\">The design reference</a>
 				   (format-time-string "%Y")
 				   "</time> Jan Ebert \
 <a accesskey=\"<\" href=\"#top\" title=\"To top of the page\" \
-class=\"hidden-link\" id=\"back-to-top\">&lt;</a>\
+class=\"hidden-link\" id=\"top-of-page\">&lt;</a>\
 <a accesskey=\"t\" href=\"#top\"></a>\
 <a accesskey=\">\" href=\"#postamble\"></a>\
 <a accesskey=\"b\" href=\"#postamble\"></a></span>\
