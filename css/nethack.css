@@ -51,18 +51,33 @@ input[type="checkbox"]:checked + label::before {
 
 /* Status lines */
 
+#nethack-name {
+	font-size: 0px;
+}
+
 #nethack-name::after {
+	font-size: 16px;
 	content: "Visitor the Voyager";
 	margin-right: var(--float-margin);
 }
 
+#nethack-attributes {
+	font-size: 0px;
+}
+
 #nethack-attributes::after {
+	font-size: 16px;
 	content: "St:12 Dx:20 Co:18 In:17 Wi:6 Ch:3 Neutral";
 	float: right;
 	text-align: right;
 }
 
+#nethack-stats {
+	font-size: 0px;
+}
+
 #nethack-stats::before {
+	font-size: 16px;
 	content: "Dlvl:1 $:1337 HP:2(55) Pw:0(63) AC:-1 Xp:25";
 	float: left;
 	clear: right;

@@ -16,9 +16,9 @@ being published."
 				<a href=\""
 				   relative-sitemap
 				   "\
-\" title=\"Sitemap\" class=\"hidden-link\" id=\"nethack-name\"></a>\
+\" title=\"Sitemap\" class=\"hidden-link\" id=\"nethack-name\">Sitemap </a>\
 <a href=\"https://nethack.org\" title=\"The design reference\" \
-class=\"hidden-link\" id=\"nethack-attributes\"></a>
+class=\"hidden-link\" id=\"nethack-attributes\">The design reference</a>
 				<br>
 				<span id=\"nethack-stats\"></span>
 			</div>
