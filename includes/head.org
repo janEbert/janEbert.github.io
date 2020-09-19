@@ -8,7 +8,7 @@ to the published index.html."
   (jan-website--remove-indentation (concat "\
 		<link href=\"" relative-css-dir "/nethack.css\" rel=\"stylesheet\">
 		<link href=\"" relative-css-dir "/main.css\" rel=\"stylesheet\">
-		<link rel=\"icon\" href=\"" relative-favicon-dir "/favicon.svg\">
+		<link rel=\"icon\" href=\"" relative-favicon-dir "/favicon.min.svg\">
 		<link rel=\"alternate icon\" href=\""
 		relative-favicon-dir "/favicon.png\">\
 ")))
@@ -59,7 +59,7 @@ RELATIVE-JS-DIR is a directory path relative to the published index.html."
 	   (relative-js-dir (file-relative-name
 						 (expand-file-name "js" js-parent-dir)
 						 parent-dir))
-	   (favicon-parent-dir (locate-dominating-file parent-dir "favicon.svg"))
+	   (favicon-parent-dir (locate-dominating-file parent-dir "favicon.min.svg"))
 	   (relative-favicon-dir
 		(directory-file-name (file-relative-name
 							  favicon-parent-dir parent-dir))))
