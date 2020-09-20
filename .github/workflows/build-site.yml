@@ -34,5 +34,5 @@ jobs:
         run: |
           cd build/
           git add .
-          git commit -m "Build from ${GITHUB_SHA}"
+          git status --porcelain || git commit -m "Build from ${GITHUB_SHA}"
           git push "https://${{ secrets.JAN_WEBSITE_PAT }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
