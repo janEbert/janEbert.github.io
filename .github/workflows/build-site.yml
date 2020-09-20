@@ -20,12 +20,6 @@ jobs:
       - name: clone-build-repo
         run: git clone --single-branch --branch gh-pages --depth 1 https://github.com/${GITHUB_REPOSITORY}.git build
 
-      - name: debug-proxies
-        run: |
-          echo "http_proxy ${http_proxy}"
-          echo "https_proxy ${https_proxy}"
-          echo "no_proxy ${no_proxy}"
-
       - name: install-org
         run: make install-org
 

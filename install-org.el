@@ -17,7 +17,6 @@
 		;; Tune garbage collection for speed
 		(gc-cons-threshold 402653184)
 		(gc-cons-percentage 0.6))
-	(message "proxy-services: %s" url-proxy-services)
 	(package-refresh-contents)
 	(package-install
 	 (cadr (assq 'gnu-elpa-keyring-update package-archive-contents)))
