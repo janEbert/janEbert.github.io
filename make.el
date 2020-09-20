@@ -1,3 +1,4 @@
+#!/usr/bin/emacs -Q --script
 ;;; make.el --- Build script for the website  -*- lexical-binding: t; -*-
 
 ;;; Commentary:
