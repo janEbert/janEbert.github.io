@@ -1,10 +1,14 @@
-.PHONY: all install-org clean
+EMACS_FLAGS = -Q
 
-all:
-	emacs -Q --script make.el
+.PHONY: build all install-org clean
+
+build:
+	emacs $(EMACS_FLAGS) --script make.el
+
+all: install-org build
 
 install-org:
-	emacs -Q --script install-org.el
+	emacs $(EMACS_FLAGS) --script install-org.el
 
 clean:
 	rm -rf build/
