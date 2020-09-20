@@ -1,0 +1,91 @@
+/* General */
+
+:root {
+	--mono-fonts: DejaVu Sans Mono, monospace;
+
+	--float-margin: 1.8em;
+}
+
+body {
+	font-family: var(--mono-fonts);
+	text-overflow: "--More--";
+}
+
+/* Room */
+
+.room {
+	font-family: var(--mono-fonts);
+	line-height: initial;
+	margin: .2em 1em;
+}
+
+.room p {
+	margin: 0;
+}
+
+/* Links */
+
+a {
+	color: inherit;
+}
+
+/* Lists */
+
+ul {
+	list-style-type: '- ';
+}
+
+/* Checkboxes */
+
+input[type="checkbox"] {
+	display: none;
+}
+
+input[type="checkbox"] + label::before {
+	content: "-";
+}
+
+input[type="checkbox"]:checked + label::before {
+	content: "+";
+}
+
+/* Status lines */
+
+#nethack-name {
+	font-size: 0px;
+}
+
+#nethack-name::after {
+	font-size: 16px;
+	content: "Visitor the Voyager";
+	margin-right: var(--float-margin);
+}
+
+#nethack-attributes {
+	font-size: 0px;
+}
+
+#nethack-attributes::after {
+	font-size: 16px;
+	content: "St:12 Dx:20 Co:18 In:17 Wi:6 Ch:3 Neutral";
+	float: right;
+	text-align: right;
+}
+
+#nethack-stats {
+	font-size: 0px;
+}
+
+#nethack-stats::before {
+	font-size: 16px;
+	content: "Dlvl:1 $:1337 HP:2(55) Pw:0(63) AC:-1 Xp:25";
+	float: left;
+	clear: right;
+	margin-right: var(--float-margin);
+}
+
+/* Utilities */
+
+.pre-spaced {
+	white-space: pre;
+}
