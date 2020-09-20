@@ -10,7 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: install-dependencies
-        run: sudo apt-get install git emacs make
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install git emacs make
 
       - name: setup-repo
         uses: actions/checkout@v2
@@ -28,6 +30,7 @@ jobs:
           git config user.email "janpublicebert@posteo.net"
 
       - name: push-changes
+        if: success()
         run: |
           git add .
           git commit -m "Build from ${GITHUB_SHA}"
