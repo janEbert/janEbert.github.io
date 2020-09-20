@@ -6,41 +6,29 @@ on:
       - master
 
 jobs:
-  install-dependencies:
-    runs-on: ubuntu-latest
-    steps:
-      - run: sudo apt-get install emacs make
-
-  setup-repo:
-    needs: install-dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-
-  clone-build-repo:
-    needs: setup-repo
-    runs-on: ubuntu-latest
-    steps:
-      - run: git clone --single-branch --branch gh-pages --depth 1 https://github.com/${GITHUB_REPOSITORY}.git build
-
   build-site:
-    needs: clone-build-repo
     runs-on: ubuntu-latest
     steps:
-      - run: make
+      - name: install-dependencies
+        run: sudo apt-get install git emacs make
 
-  configure-new-repo:
-    needs: build-site
-    runs-on: ubuntu-latest
-    steps:
-      - run: cd build/
-      - run: git config user.name "${GITHUB_ACTOR}"
-      - run: git config user.email "janpublicebert@posteo.net"
+      - name: setup-repo
+        uses: actions/checkout@v2
 
-  push-changes:
-    needs: configure-new-repo
-    runs-on: ubuntu-latest
-    steps:
-      - run: git add .
-      - run: git commit -m "Build from ${GITHUB_SHA}"
-      - run: git push "https://${JAN_WEBSITE_PAT}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+      - name: clone-build-repo
+        run: git clone --single-branch --branch gh-pages --depth 1 https://github.com/${GITHUB_REPOSITORY}.git build
+
+      - name: build
+        run: make
+
+      - name: configure-new-repo
+      - run: |
+          cd build/
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "janpublicebert@posteo.net"
+
+      - name: push-changes
+      - run: |
+          git add .
+          git commit -m "Build from ${GITHUB_SHA}"
+          git push "https://${JAN_WEBSITE_PAT}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
