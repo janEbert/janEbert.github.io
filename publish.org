@@ -121,7 +121,7 @@ the environment is the same."
 				   :publishing-function org-publish-attachment
 				   ;; Exclude everything usually added.
 				   :exclude ".*\\.org$"
-				   :include (".nojekyll")
+				   :include ("CNAME" ".nojekyll")
 				   )
 
 				  (
