@@ -115,11 +115,22 @@ the environment is the same."
 				   )
 
 				  (
+				   "deployment-related"
+				   :base-directory ,project-base-dir
+				   :publishing-directory ,(expand-file-name build-dir)
+				   :publishing-function org-publish-attachment
+				   ;; Exclude everything usually added.
+				   :exclude ".*\\.org$"
+				   :include (".nojekyll")
+				   )
+
+				  (
 				   "personal-website"
 				   :components
 				   (
 					"website-content"
 					"website-includes"
+					"deployment-related"
 					)
 				   )
 				  ))))
