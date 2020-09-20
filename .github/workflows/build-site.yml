@@ -12,7 +12,7 @@ jobs:
       - name: install-dependencies
         run: |
           sudo apt-get update
-          sudo apt-get -y install git emacs make
+          sudo apt-get -y install git emacs elpa-org make
 
       - name: setup-repo
         uses: actions/checkout@v2
@@ -20,11 +20,8 @@ jobs:
       - name: clone-build-repo
         run: git clone --single-branch --branch gh-pages --depth 1 https://github.com/${GITHUB_REPOSITORY}.git build
 
-      - name: install-org
-        run: make install-org
-
       - name: build
-        run: make
+        run: make EMACS_FLAGS=''
 
       - name: configure-new-repo
         run: |
@@ -35,6 +32,7 @@ jobs:
       - name: push-changes
         if: success()
         run: |
+          cd build/
           git add .
           git commit -m "Build from ${GITHUB_SHA}"
-          git push "https://${JAN_WEBSITE_PAT}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+          git push "https://${{ secrets.JAN_WEBSITE_PAT }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
