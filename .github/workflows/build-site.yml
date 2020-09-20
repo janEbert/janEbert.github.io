@@ -20,6 +20,9 @@ jobs:
       - name: clone-build-repo
         run: git clone --single-branch --branch gh-pages --depth 1 https://github.com/${GITHUB_REPOSITORY}.git build
 
+      - name: install-org
+        run: make install-org
+
       - name: build
         run: make
 
