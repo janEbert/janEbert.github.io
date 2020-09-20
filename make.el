@@ -4,6 +4,7 @@
 ;;; Commentary:
 ;; Script to build the website.
 
+(require 'org)
 (require 'ob-core)
 (require 'ob-emacs-lisp)
 ;; Not required but do it just in case.
@@ -20,6 +21,7 @@
 	  ;; Lexical binding in Org Babel code by default
 	  (org-babel-default-header-args:emacs-lisp
 	   (cons '(:lexical . "yes") org-babel-default-header-args:emacs-lisp)))
+  (message "publishing with Org %s" org-version)
   (org-babel-load-file "publish.org"))
 
 ;;; make.el ends here
