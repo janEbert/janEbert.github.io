@@ -4,13 +4,17 @@
 ;;; Commentary:
 ;; Script to build the website.
 
+(require 'package)
+
+;;; Code:
+
+(package-initialize)
+
 (require 'org)
 (require 'ob-core)
 (require 'ob-emacs-lisp)
 ;; Not required but do it just in case.
 (require 'files)
-
-;;; Code:
 
 (let ((org-confirm-babel-evaluate nil)
 	  ;; Do not litter
