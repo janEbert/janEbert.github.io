@@ -44,7 +44,7 @@ The modifications must be pure so no matter how often the function is run,
 the environment is the same."
   (let* ((project-base-dir (expand-file-name "."))
 		 (build-dir
-		  ;; "~/Downloads/personal-website"
+		  ;; (expand-file-name "~/Downloads/personal-website")
 		  (expand-file-name "build" project-base-dir)
 		  ))
 
@@ -54,7 +54,7 @@ the environment is the same."
 				   "website-org-sources"
 				   :base-directory ,(expand-file-name "org-sources"
 													  project-base-dir)
-				   :publishing-directory ,(expand-file-name build-dir)
+				   :publishing-directory ,build-dir
 				   ;; :preparation-function
 				   ;; jan-website--prepare-publish-to-html
 				   :publishing-function org-html-publish-to-html
@@ -99,7 +99,7 @@ the environment is the same."
 				  (
 				   "website-favicon"
 				   :base-directory ,project-base-dir
-				   :publishing-directory ,(expand-file-name build-dir)
+				   :publishing-directory ,build-dir
 				   :publishing-function org-publish-attachment
 				   :base-extension "svg\\|png"
 				   )
