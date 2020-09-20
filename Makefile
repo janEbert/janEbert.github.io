@@ -8,3 +8,4 @@ install-org:
 
 clean:
 	rm -rf build/
+	rm -f publish.el
