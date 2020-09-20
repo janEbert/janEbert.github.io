@@ -22,13 +22,13 @@ jobs:
         run: make
 
       - name: configure-new-repo
-      - run: |
+        run: |
           cd build/
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "janpublicebert@posteo.net"
 
       - name: push-changes
-      - run: |
+        run: |
           git add .
           git commit -m "Build from ${GITHUB_SHA}"
           git push "https://${JAN_WEBSITE_PAT}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
