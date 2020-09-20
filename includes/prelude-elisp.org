@@ -169,10 +169,8 @@ Reference IDs are cached in REFERENCES."
 
 ;; (advice-remove 'org-export-get-reference 'jan-website--export-reference)
 
-(let ((export-block-filters
- 	   (copy-sequence org-export-filter-export-block-functions)))
-   (push 'jan-website--org-export-html-block-macro-expansions
- 		export-block-filters)
-   (setq-local org-export-filter-export-block-functions
- 			  export-block-filters))
+;; Does not work with `add-hook'
+(setq-local org-export-filter-export-block-functions
+			(cons 'jan-website--org-export-html-block-macro-expansions
+				  org-export-filter-export-block-functions))
 #+end_src

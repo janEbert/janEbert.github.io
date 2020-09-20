@@ -28,10 +28,10 @@ id=\"brightness-mode-toggle\">\
 
 (setq-local
  org-html-preamble-format
- (let* ((preamble-alist (copy-sequence org-html-preamble-format))
-		(index-parent-dir
+ (let* ((index-parent-dir
 		 (locate-dominating-file default-directory "index.org"))
 		(relative-index
 		 (file-relative-name (expand-file-name "index.html" index-parent-dir))))
-   (push (jan-website--construct-preamble relative-index) preamble-alist)))
+   (cons (jan-website--construct-preamble relative-index)
+		 org-html-preamble-format)))
 #+end_src

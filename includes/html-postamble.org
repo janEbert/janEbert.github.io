@@ -41,7 +41,7 @@ class=\"hidden-link\" id=\"top-of-page\">&lt;</a>\
 		 (locate-dominating-file default-directory "sitemap.org"))
 		(relative-sitemap
 		 (file-relative-name
-		  (expand-file-name "sitemap.html" sitemap-parent-dir)))
-		(postamble-alist (copy-sequence org-html-postamble-format)))
-   (push (jan-website--construct-postamble relative-sitemap) postamble-alist)))
+		  (expand-file-name "sitemap.html" sitemap-parent-dir))))
+   (cons (jan-website--construct-postamble relative-sitemap)
+		 org-html-postamble-format)))
 #+end_src
