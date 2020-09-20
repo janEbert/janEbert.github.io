@@ -33,6 +33,8 @@ jobs:
         if: success()
         run: |
           cd build/
-          git add .
-          git status --porcelain || git commit -m "Build from ${GITHUB_SHA}"
-          git push "https://${{ secrets.JAN_WEBSITE_PAT }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+          if [[ $(git status --porcelain) ]]; then
+            git add .
+            git commit -m "Build from ${GITHUB_SHA}"
+            git push "https://${{ secrets.JAN_WEBSITE_PAT }}@github.com/${GITHUB_REPOSITORY}.git" gh-pages
+          fi
