@@ -68,10 +68,10 @@ RELATIVE-JS-DIR is a directory path relative to the published index.html."
 
   (setq-local org-html-head
 			  (concat org-html-head
-					  (jan-website--construct-head relative-css-dir
-												   relative-favicon-dir))
+					  (jan-website--construct-head
+					   relative-css-dir relative-favicon-dir)))
 
-			  org-html-head-extra
+  (setq-local org-html-head-extra
 			  (concat org-html-head-extra
 					  (jan-website--construct-head-extra relative-js-dir))))
 #+end_src
