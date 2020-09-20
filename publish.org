@@ -45,7 +45,7 @@ the environment is the same."
   (let* ((project-base-dir (expand-file-name "."))
 		 (build-dir
 		  ;; "~/Downloads/personal-website"
-		  (expand-file-name "docs" project-base-dir)
+		  (expand-file-name "build" project-base-dir)
 		  ))
 
 	(setq-local org-publish-project-alist

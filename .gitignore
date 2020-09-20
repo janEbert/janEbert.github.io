@@ -1,6 +1,6 @@
 /publish.el
 theindex.inc
-/docs/
+/build/
 
 # Recommended for local excludes
 # *_.org
