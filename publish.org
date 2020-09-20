@@ -38,6 +38,8 @@
 #+begin_src emacs-lisp :exports results :results none :tangle yes
 (require 'ox-publish)
 
+(message "setting up project")
+
 (defun jan-website--setup-project ()
   "Setup the project's publishing environment.
 The modifications must be pure so no matter how often the function is run,

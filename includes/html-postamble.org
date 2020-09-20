@@ -1,6 +1,8 @@
 #+begin_src emacs-lisp :exports results :results none
 (require 'ox-html)
 
+(message "loading html-postamble.org")
+
 (defun jan-website--construct-postamble (relative-sitemap)
   "Return the Org html postamble format.
 RELATIVE-SITEMAP is a relative path to sitemap.html from the file

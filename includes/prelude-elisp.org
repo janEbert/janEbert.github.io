@@ -1,6 +1,8 @@
 #+begin_src emacs-lisp :exports results :results none
 (require 'ox-html)
 
+(message "loading prelude-elisp.org")
+
 ;; Do not indent html files for smaller files and since we don't edit by hand.
 (setq-local org-html-indent nil)
 (setq-local org-html--pre/postamble-class "org-status")

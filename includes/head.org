@@ -1,6 +1,8 @@
 #+begin_src emacs-lisp :exports results :results none
 (require 'ox-html)
 
+(message "loading head.org")
+
 (defun jan-website--construct-head (relative-css-dir relative-favicon-dir)
   "Return the Org html head, linking to files in the given directories.
 RELATIVE-CSS-DIR and RELATIVE-FAVICON-DIR are directory paths relative

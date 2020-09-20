@@ -1,6 +1,8 @@
 #+begin_src emacs-lisp :exports results :results none
 (require 'ox-html)
 
+(message "loading html-preamble.org")
+
 (defun jan-website--construct-preamble (relative-index)
   "Return the Org html preamble format.
 RELATIVE-INDEX is a relative path to the main index.html from the file

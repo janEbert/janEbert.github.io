@@ -1,4 +1,6 @@
 #+begin_src emacs-lisp :exports results :results value html
+(message "loading my-room.org")
+
 (jan-website--remove-indentation
  "\
 			<section id=\"my-room\">
