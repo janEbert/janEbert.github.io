@@ -18,6 +18,8 @@
 		(gc-cons-threshold 402653184)
 		(gc-cons-percentage 0.6))
 	(package-refresh-contents)
+	(package-install
+	 (cadr (assq 'gnu-elpa-keyring-update package-archive-contents)))
 	(package-install (cadr (assq 'org package-archive-contents)))))
 
 ;;; install-org.el ends here
