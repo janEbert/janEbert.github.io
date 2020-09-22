@@ -6,7 +6,14 @@ on:
       - master
 
 jobs:
+  check-skip:
+    runs-on: ubuntu-latest
+    if: !contains(format('{0}; {1}', github.event.head_commit.message, github.event.pull_request.title), '[skip ci]') && !contains(format('{0}; {1}', github.event.head_commit.message, github.event.pull_request.title), '[ci skip]')
+    steps:
+      - run: echo 'CI not skipped'
+
   build-site:
+    needs: check-skip
     runs-on: ubuntu-latest
     steps:
       - name: install-dependencies
