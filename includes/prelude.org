@@ -1,2 +1,2 @@
-#+include: "prelude-title.org"
 #+include: "prelude-without-title.org"
+#+include: "prelude-title.org"
