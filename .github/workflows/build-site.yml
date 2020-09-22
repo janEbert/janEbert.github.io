@@ -30,7 +30,7 @@ jobs:
       - name: build
         run: make EMACS_FLAGS=''
 
-      - name: configure-new-repo
+      - name: configure-build-repo
         run: |
           cd build/
           git config user.name "${GITHUB_ACTOR}"
