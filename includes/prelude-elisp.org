@@ -157,22 +157,22 @@ Reference IDs are cached in REFERENCES."
 ;; 		  (lambda (backend)
 ;; 			(when (org-export-derived-backend-p backend 'html)
 ;; 			  (add-function :override (local 'org-export-get-reference)
-;; 							'jan-website--export-reference)))
+;; 							#'jan-website--export-reference)))
 ;; 		  nil t)
 
 ;; (add-function :override (local 'org-export-get-reference)
-;; 			  'jan-website--export-reference)
+;; 			  #'jan-website--export-reference)
 
 ;; (remove-function (local 'org-export-get-reference)
-;; 				 'jan-website--export-reference)
+;; 				 #'jan-website--export-reference)
 
 (advice-add 'org-export-get-reference
-			:override 'jan-website--export-reference)
+			:override #'jan-website--export-reference)
 
-;; (advice-remove 'org-export-get-reference 'jan-website--export-reference)
+;; (advice-remove 'org-export-get-reference #'jan-website--export-reference)
 
 ;; Does not work with `add-hook'
 (setq-local org-export-filter-export-block-functions
-			(cons 'jan-website--org-export-html-block-macro-expansions
+			(cons #'jan-website--org-export-html-block-macro-expansions
 				  org-export-filter-export-block-functions))
 #+end_src
