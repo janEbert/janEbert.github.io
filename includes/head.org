@@ -9,7 +9,7 @@ RELATIVE-CSS-DIR and RELATIVE-FAVICON-DIR are directory paths relative
 to the published index.html."
   (jan-website--remove-indentation (concat "\
 		<meta http-equiv=\"Content-Security-Policy\" \
-content=\"default-src 'none'; font-src: 'none'; img-src 'self'; \
+content=\"default-src 'none'; font-src 'none'; img-src 'self'; \
 object-src 'none'; script-src 'self'; style-src 'self'\">
 		<link href=\"" relative-css-dir "/nethack.css\" rel=\"stylesheet\">
 		<link href=\"" relative-css-dir "/main.css\" rel=\"stylesheet\">
