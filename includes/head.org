@@ -10,7 +10,7 @@ to the published index.html."
   (jan-website--remove-indentation (concat "\
 		<meta http-equiv=\"Content-Security-Policy\" \
 content=\"default-src 'none'; font-src 'none'; img-src 'self'; \
-object-src 'none'; script-src 'self'; style-src 'self'\">
+object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'\">
 		<link href=\"" relative-css-dir "/nethack.css\" rel=\"stylesheet\">
 		<link href=\"" relative-css-dir "/main.css\" rel=\"stylesheet\">
 		<link rel=\"icon\" href=\"" relative-favicon-dir "/favicon.min.svg\">
