@@ -64,6 +64,12 @@ h4 {
 
 #title-name {
 	margin: 0;
+	/* Previously inline style to avoid Chromium transition on page load bug
+	https://bugs.chromium.org/p/chromium/issues/detail?id=167083
+	https://bugs.chromium.org/p/chromium/issues/detail?id=332189 */
+	font-size: 24px;
+	display: inline-block;
+	transition-duration: var(--title-name-transition-duration);
 }
 
 #title-name:hover {

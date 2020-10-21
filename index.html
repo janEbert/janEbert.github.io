@@ -9,30 +9,15 @@
 <meta name="description" content="Software engineer Jan Ebert's homepage containing a blog and web applications.
 Dealing with performance, machine learning, simulations, mathematics and programming languages like Rust, Julia, C, Lisp, Assembly and Python."
 >
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src: 'none'; img-src 'self'; object-src 'none'; script-src 'self'; style-src 'self'">
 <link href="css/nethack.css" rel="stylesheet">
 <link href="css/main.css" rel="stylesheet">
 <link rel="icon" href="./favicon.min.svg">
+<noscript>
+<link href="css/main-noscript.css" rel="stylesheet">
+</noscript>
 <link rel="alternate icon" href="./favicon.png">
 <script src="js/theme-switcher.js" defer></script>
-<!--
-Avoid Chromium transition on page load bug
-https://bugs.chromium.org/p/chromium/issues/detail?id=167083
-https://bugs.chromium.org/p/chromium/issues/detail?id=332189
--->
-<style>
-#title-name {
-font-size: 24px;
-display: inline-block;
-transition-duration: var(--title-name-transition-duration);
-}
-</style>
-<noscript>
-<style>
-#theme-togglers {
-display: none;
-}
-</style>
-</noscript>
 </head>
 <body>
 <header id="preamble" class="org-status">
