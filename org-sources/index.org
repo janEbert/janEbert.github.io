@@ -14,10 +14,10 @@ favorite projects include:
 - [[https://github.com/janEbert/rldurak][Reinforcement learning for Durak]]
 - [[https://github.com/janEbert/GANerator][Generative adversarial network framework]]
 
-As I have noticed some interest in the project, I am currently working
-on a rewrite of the Durak reinforcement learning environment in [[https://rust-lang.org][Rust]].
-This will result in a high-performance [[https://github.com/openai/gym][Gym]] environment striking the
-fine balance between a relatively simple but reward-sparse
-reinforcement learning task. An optimal agent needs to plan for the
-future to obtain the delayed win-or-lose reward.\\
+As I have noticed some interest in the project, I am thinking about
+working on a rewrite of the Durak reinforcement learning environment
+in [[https://rust-lang.org][Rust]]. This would result in a high-performance [[https://github.com/openai/gym][Gym]] environment
+striking the fine balance between a relatively simple but
+reward-sparse reinforcement learning task. An optimal agent would need
+to plan for the future to obtain the delayed win-or-lose reward.\\
 Aside from that, Durak is also really fun!
