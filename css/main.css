@@ -158,6 +158,12 @@ li > a[id] + a[href^="#"]:hover::after
 	color: inherit;
 }
 
+/* Details */
+
+details > summary {
+	cursor: pointer;
+}
+
 /* Footer */
 
 footer {
