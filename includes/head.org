@@ -13,13 +13,14 @@ content=\"default-src 'none'; font-src 'none'; img-src 'self'; \
 object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'\">
 		<link href=\"" relative-css-dir "/nethack.css\" rel=\"stylesheet\">
 		<link href=\"" relative-css-dir "/main.css\" rel=\"stylesheet\">
-		<link rel=\"icon\" href=\"" relative-favicon-dir "/favicon.min.svg\">
 
 		<noscript>
 			<link href=\"" relative-css-dir
 			"/main-noscript.css\" rel=\"stylesheet\">
 		</noscript>
 
+		<link rel=\"icon\" href=\""
+		relative-favicon-dir "/favicon_as_path.min.svg\">
 		<link rel=\"alternate icon\" href=\""
 		relative-favicon-dir "/favicon.png\">\
 ")))
