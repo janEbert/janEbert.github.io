@@ -49,6 +49,20 @@ input[type="checkbox"]:checked + label::before {
 	content: "+";
 }
 
+/* Details */
+
+details > summary {
+	list-style-type: "- ";
+}
+
+details:not([open]) > summary::after {
+	content: " --More--";
+}
+
+details[open] > summary {
+	list-style-type: "+ ";
+}
+
 /* Status lines */
 
 #nethack-name {
