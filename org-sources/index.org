@@ -14,10 +14,14 @@ favorite projects include:
 - [[https://github.com/janEbert/rldurak][Reinforcement learning for Durak]]
 - [[https://github.com/janEbert/GANerator][Generative adversarial network framework]]
 
-As I have noticed some interest in the project, I am thinking about
-working on a rewrite of the Durak reinforcement learning environment
-in [[https://rust-lang.org][Rust]]. This would result in a high-performance [[https://github.com/openai/gym][Gym]] environment
-striking the fine balance between a relatively simple but
-reward-sparse reinforcement learning task. An optimal agent would need
-to plan for the future to obtain the delayed win-or-lose reward.\\
-Aside from that, Durak is also really fun!
+I'm currently working at the [[https://www.helmholtz.ai/themenmenue/our-research/consultant-teams/helmholtz-ai-consultants-fzj/index.html][Helmholtz AI]] division of the [[https://www.fz-juelich.de/ias/jsc/EN/Home/home_node.html][Jülich
+Supercomputing Centre]]. Some of the projects I'm currently working on
+include:
+- [[https://www.fz-juelich.de/SharedDocs/Meldungen/IAS/JSC/EN/2020/2020-07-alphanumerics-zero.html][AlphaNumerics Zero]]: Using reinforcement learning to optimize a
+  numerical solver.
+- Reproducing OpenAI's [[https://openai.com/blog/dall-e/][DALL-E]] model.
+- [[https://mlcommons.org/en/][MLCommons]] MLPerf benchmarks.
+
+Recently, I've also become interested in [[https://triton-lang.org/][Triton]], the next machine
+learning kernel compiler running on /your/ GPU! I hope to be able to
+invest some time in this.
