@@ -105,11 +105,12 @@ Dealing with performance, machine learning, simulations, mathematics and program
 <ul>
 <li><a href="#Simple-Spectral-Radius">Simple Spectral Radius</a></li>
 <li><a href="#JAX%27-Default-Precision">JAX&rsquo; Default Precision</a></li>
-<li><a href="#Complex-Differentiation">Complex Differentiation</a></li>
 </ul>
 </li>
-<li><a href="#Complex-Gradients-and-Conjugates">Complex Gradients and Conjugates</a>
+<li><a href="#Gradients-and-Complex-Numbers">Gradients and Complex Numbers</a>
 <ul>
+<li><a href="#Complex-Differentiation">Complex Differentiation</a></li>
+<li><a href="#Gradients-and-Complex-Numbers--Simple-Spectral-Radius">Simple Spectral Radius</a></li>
 <li><a href="#Setting-Up-Complex-Input">Setting Up Complex Input</a></li>
 <li><a href="#Differentiating-Through-Complex-Gradients">Differentiating Through Complex Gradients</a></li>
 <li><a href="#Why-Different-Gradients%3F">Why Different Gradients?</a></li>
@@ -301,7 +302,7 @@ case you decide to pick up JAX.
 </p>
 
 <p>
-You can <a href="https://fz-juelich.sciebo.de/s/AxxdUGFrS5uhQpZ">download the original slides here</a>.
+You can <a href="https://fz-juelich.sciebo.de/s/byGYLFRVyqyG1Zx">download the original slides here</a>.
 </p>
 </div>
 </div>
@@ -356,7 +357,7 @@ python -m pip install --upgrade jax jaxlib
 <ul class="org-ul">
 <li><a href="https://github.com/google/jax">JAX</a> is a <b>cool</b> new corporation-backed framework for differentiable
 programming/scientific computing.</li>
-<li>Faster than <a href="https://numpy.org">NumPy</a>/<a href="https://scipy.org">SciPy</a> due to GPU usage and &#x2026;</li>
+<li>Faster than <a href="https://numpy.org">NumPy</a>/<a href="https://scipy.org">SciPy</a> due to GPU usage and&#x2026;</li>
 <li>Compilability via <a href="https://www.tensorflow.org/xla/">Accelerated Linear Algebra compiler</a> (XLA, reused
 from <a href="https://www.tensorflow.org">TensorFlow</a>).</li>
 <li>More usability over NumPy and <a href="https://pytorch.org">PyTorch</a>.</li>
@@ -977,7 +978,8 @@ happily differentiate again while keeping our state intact:
 
 <div class="org-src-container">
 <pre class="src src-python"><span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">poly_fn_and_aux</span>(x, y):
-    <span style="color: #859900; font-weight: bold;">return</span> x**4 + (y - 1)**2 + 3, ({<span style="color: #2aa198;">'y'</span>: y}, 1337)
+    <span style="color: #268bd2;">aux_output</span> = ({<span style="color: #2aa198;">'y'</span>: y}, 1337)
+    <span style="color: #859900; font-weight: bold;">return</span> x**4 + (y - 1)**2 + 3, aux_output
 
 <span style="color: #268bd2;">grad_aux_fn</span> = jax.grad(poly_fn_and_aux, has_aux=<span style="color: #268bd2; font-weight: bold;">True</span>)
 grad, aux = grad_aux_fn(x, y)
@@ -1134,11 +1136,13 @@ Ahh, all is well; JAX is not lacking in terms of precision after all
 </p>
 
 <p>
-Let&rsquo;s check out what C says to see just how precise we are:
+Let&rsquo;s check out what the square root of 2 is in single-precision to
+see just how precise we are:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-C">printf(<span style="color: #2aa198;">"sqrtf, %.16f"</span>, sqrtf(2.0f));
+<pre class="src src-python"><span style="color: #268bd2;">two_f32</span> = np.array(2, dtype=np.float32)
+[[<span style="color: #2aa198;">'sqrt_f32'</span>, <span style="color: #2aa198;">'{:.16f}'</span>.<span style="color: #657b83; font-weight: bold;">format</span>(np.sqrt(two_f32))]]
 </pre>
 </div>
 
@@ -1152,15 +1156,19 @@ Let&rsquo;s check out what C says to see just how precise we are:
 </colgroup>
 <tbody>
 <tr>
-<td class="org-left"><code>sqrtf</code></td>
+<td class="org-left"><code>sqrt_f32</code></td>
 <td class="org-right">1.4142135381698608</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
+</div>
 
-
+<div id="outline-container-Gradients-and-Complex-Numbers" class="outline-4">
+<h4 id="Gradients-and-Complex-Numbers"><a href="#Gradients-and-Complex-Numbers">Gradients and Complex Numbers</a></h4>
+<div class="outline-text-4" id="text-Gradients-and-Complex-Numbers">
+</div>
 <div id="outline-container-Complex-Differentiation" class="outline-5">
 <h5 id="Complex-Differentiation"><a href="#Complex-Differentiation">Complex Differentiation</a></h5>
 <div class="outline-text-5" id="text-Complex-Differentiation">
@@ -1222,12 +1230,25 @@ torch_mat.requires_grad_(<span style="color: #268bd2; font-weight: bold;">True</
 </table>
 </div>
 </div>
+
+<div id="outline-container-Gradients-and-Complex-Numbers--Simple-Spectral-Radius" class="outline-5">
+<h5 id="Gradients-and-Complex-Numbers--Simple-Spectral-Radius"><a href="#Gradients-and-Complex-Numbers--Simple-Spectral-Radius">Simple Spectral Radius</a></h5>
+<div class="outline-text-5" id="text-Gradients-and-Complex-Numbers--Simple-Spectral-Radius">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">jax_spectral_radius</span>(mat):
+    <span style="color: #268bd2;">eigvals</span> = jnp.linalg.eigvals(mat)
+    <span style="color: #268bd2;">spectral_radius</span> = jnp.<span style="color: #657b83; font-weight: bold;">max</span>(jnp.<span style="color: #657b83; font-weight: bold;">abs</span>(eigvals))
+    <span style="color: #859900; font-weight: bold;">return</span> spectral_radius
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">torch_spectral_radius</span>(mat):
+    <span style="color: #268bd2;">eigvals</span> = torch.linalg.eigvals(mat)
+    <span style="color: #268bd2;">spectral_radius</span> = torch.<span style="color: #657b83; font-weight: bold;">max</span>(torch.<span style="color: #657b83; font-weight: bold;">abs</span>(eigvals))
+    <span style="color: #859900; font-weight: bold;">return</span> spectral_radius
+</pre>
+</div>
+</div>
 </div>
 
-<div id="outline-container-Complex-Gradients-and-Conjugates" class="outline-4">
-<h4 id="Complex-Gradients-and-Conjugates"><a href="#Complex-Gradients-and-Conjugates">Complex Gradients and Conjugates</a></h4>
-<div class="outline-text-4" id="text-Complex-Gradients-and-Conjugates">
-</div>
 <div id="outline-container-Setting-Up-Complex-Input" class="outline-5">
 <h5 id="Setting-Up-Complex-Input"><a href="#Setting-Up-Complex-Input">Setting Up Complex Input</a></h5>
 <div class="outline-text-5" id="text-Setting-Up-Complex-Input">
@@ -1645,14 +1666,15 @@ available. You achieve the same in PyTorch using a call to
 </p>
 
 <div class="org-src-container">
-<pre class="src src-python" id="org7682ac9"><span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">time_str</span>(code, number=5000):
+<pre class="src src-python" id="org7682ac9"><span style="color: #268bd2;">jit_randn</span> = jax.jit(randn, static_argnums=(1, 2))
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">time_str</span>(code, number=5000):
     <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Initialize cache</span>
     <span style="color: #657b83; font-weight: bold;">exec</span>(code)
     <span style="color: #859900; font-weight: bold;">return</span> timeit.timeit(code, <span style="color: #657b83; font-weight: bold;">globals</span>=<span style="color: #657b83; font-weight: bold;">globals</span>(), number=number)
 
 randn_time = time_str(
     <span style="color: #2aa198;">'randn(rng_key, (100, 100))[1].block_until_ready()'</span>)
-jit_randn = jax.jit(randn, static_argnums=(1, 2))
 jit_randn_time = time_str(
     <span style="color: #2aa198;">'jit_randn(rng_key, (100, 100))[1].block_until_ready()'</span>)
 [
@@ -1944,7 +1966,7 @@ representation.
 <p>
 Intermediate representation (IR) is a lower-level (in this case
 assembly-like) representation of the program. The compiler backend
-<a href="https://llvm.org">LLVM</a> uses this IR to achieve portability across assembly languages.
+<a href="https://llvm.org">LLVM</a> uses IR to achieve portability across assembly languages.
 </p>
 
 <p>
@@ -3482,7 +3504,7 @@ computing.
 <span id="contact-text">Please contact me at <a href="mailto:janpublicebert@posteo.net">janpublicebert@posteo.net</a>.</span>
 </address>
 <div id="status-lines">
-<a href="../sitemap.html" title="Sitemap" class="hidden-link" id="nethack-name">Sitemap </a><a href="https://nethack.org" title="The design reference" class="hidden-link" id="nethack-attributes">The design reference</a>
+<span id="nethack-name"></span><a href="https://nethack.org" title="The design reference" class="hidden-link" id="nethack-attributes">The design reference</a>
 <br>
 <span id="nethack-stats"></span>
 </div>
