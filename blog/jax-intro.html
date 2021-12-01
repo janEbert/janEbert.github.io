@@ -301,7 +301,7 @@ case you decide to pick up JAX.
 </p>
 
 <p>
-You can <a href="https://fz-juelich.sciebo.de/s/tSxkFWhsuNR7aMx">download the original slides here</a>.
+You can <a href="https://fz-juelich.sciebo.de/s/AxxdUGFrS5uhQpZ">download the original slides here</a>.
 </p>
 </div>
 </div>
@@ -682,6 +682,13 @@ and which we will pass along.
 You can also split off more than one key by passing an additional
 integer to <code>jax.random.split</code>.
 </p>
+
+<p>
+Another thing I wanted to show off here is the pattern of using
+standard Python types with JAX. Since we only specified <code>float</code>
+instead of the more specific <code>jnp.float32</code> or <code>jnp.float64</code>, JAX will
+automatically pick the correct one based on its configured default.
+</p>
 </div>
 </div>
 
@@ -823,9 +830,9 @@ higher-order derivatives.
 <span style="color: #268bd2;">x</span> = 1.0
 <span style="color: #268bd2;">y</span> = 2.0
 
-<span style="color: #268bd2;">grad_x_fn</span> = jax.grad(expo_fn)
-<span style="color: #268bd2;">grad2_x_fn</span> = jax.grad(grad_x_fn)
-<span style="color: #268bd2;">grad3_x_fn</span> = jax.grad(grad2_x_fn)
+<span style="color: #268bd2;">grad_x_fn</span> = jax.grad(expo_fn)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">4x**3</span>
+<span style="color: #268bd2;">grad2_x_fn</span> = jax.grad(grad_x_fn)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">12x**2</span>
+<span style="color: #268bd2;">grad3_x_fn</span> = jax.grad(grad2_x_fn)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">24x**1</span>
 [
     [<span style="color: #2aa198;">'function'</span>, r<span style="color: #2aa198;">'\partial{}expo_fn/\partial{}\(x\)'</span>],
     [<span style="color: #2aa198;">'grad_x'</span>, grad_x_fn(x, y).item()],
@@ -882,7 +889,7 @@ argument. We can also specify multiple <code>argnums</code>.
 <pre class="src src-python"><span style="color: #268bd2;">x</span> = 1.0
 <span style="color: #268bd2;">y</span> = 2.0
 
-<span style="color: #268bd2;">grad_y_fn</span> = jax.grad(expo_fn, argnums=1)
+<span style="color: #268bd2;">grad_y_fn</span> = jax.grad(expo_fn, argnums=1)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">ln(y) * 2**y</span>
 grad_xy_fn = jax.grad(expo_fn, argnums=(0, 1))
 [
     [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'result'</span>],
