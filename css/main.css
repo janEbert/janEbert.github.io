@@ -7,9 +7,13 @@
 
 	--text-color-light: #101010;
 	--background-color-light: #fafafa;
+	--code-background-color-light: #f1f1f1;
+	--code-border-color-light: #e6e6e6;
 
 	--text-color-dark: #efefef;
 	--background-color-dark: #050505;
+	--code-background-color-dark: #0e0e0e;
+	--code-border-color-dark: #191919;
 
 	--visited-link-color: #7f7f7f;
 
@@ -98,6 +102,56 @@ h4 {
 
 #main-content {
 	flex-grow: 1;
+}
+
+/* Code */
+
+pre, code {
+	border: 1px solid var(--code-border-color-light);
+	border-radius: 3px;
+	background-color: var(--code-background-color-light);
+	font-family: monospace;
+	overflow: auto;
+}
+
+@media (prefers-color-scheme: dark) {
+	pre, code {
+		border-color: var(--code-border-color-dark);
+		background-color: var(--code-background-color-dark);
+	}
+}
+
+code {
+	padding: 3px;
+}
+
+pre {
+	padding: 9px;
+	margin: 1.2em;
+}
+
+/* Tables */
+
+.org-right {
+	margin-left: auto;
+	margin-right: 0px;
+	text-align: right;
+}
+
+.org-left {
+	margin-left: 0px;
+	margin-right: auto;
+	text-align: left;
+}
+
+.org-center {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+}
+
+td {
+	padding: .4em;
 }
 
 /* Room */
