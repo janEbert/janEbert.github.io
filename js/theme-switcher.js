@@ -75,6 +75,11 @@ class JanWebsiteThemeSwitcher {
 				otherBrightnessModeStyle.innerText = `		body {
 			color: var(--text-color-${brightnessMode});
 			background-color: var(--background-color-${brightnessMode});
+		}
+
+		pre, code {
+			border-color: var(--code-border-color-${brightnessMode});
+			background-color: var(--code-background-color-${brightnessMode});
 		}`;
 
 				BrightnessModeToggle.toggleTransitions();
