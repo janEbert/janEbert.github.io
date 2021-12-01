@@ -1,0 +1,3484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>JAX is for Joy, AutoDiff, and Xeleration – Jan Ebert ♥</title>
+<meta name="author" content="Jan Ebert" />
+<meta name="description" content="Software engineer Jan Ebert's homepage containing a blog and web applications.
+Dealing with performance, machine learning, simulations, mathematics and programming languages like Rust, Julia, C, Lisp, Assembly and Python." />
+<meta name="generator" content="Org Mode" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src https://cdnjs.cloudflare.com; img-src 'self' https://cdnjs.cloudflare.com; object-src 'none'; script-src 'self' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline'">
+<link href="../css/nethack.css" rel="stylesheet">
+<link href="../css/main.css" rel="stylesheet">
+<noscript>
+<link href="../css/main-noscript.css" rel="stylesheet">
+</noscript>
+<link rel="icon" href="../favicon_as_path.min.svg">
+<link rel="alternate icon" href="../favicon.png">
+<script src="../js/theme-switcher.js" defer></script>
+<script src="/home/fzjan/janEbert.github.io/js/mathjax-config.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS_HTML" defer></script>
+</head>
+<body>
+<header id="preamble" class="org-status">
+<h4>Aloha Visitor, welcome to <span id="name-place"><h1 id="title-name"><a href="../index.html" accesskey="h" class="hidden-link">Jan Ebert</a></h1>'s</span>!<span class="pre-spaced">  </span>You are a neutral human Tourist.</h4>
+<div id="theme-togglers">
+<small>
+<input type="checkbox" name="monospace-toggle" id="monospace-toggle" autocomplete="off"><label for="monospace-toggle"> Toggle monospacing</label><input type="checkbox" name="brightness-mode-toggle" id="brightness-mode-toggle" autocomplete="off"><label for="brightness-mode-toggle"> Toggle brightness</label>
+</small>
+</div>
+<hr>
+</header>
+<article id="main-content" class="content">
+<nav id="table-of-contents" role="doc-toc">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents" role="doc-toc">
+<ul>
+<li><a href="#Setup">1. Setup</a>
+<ul>
+<li><a href="#About-this-Text">1.1. About this Text</a></li>
+<li><a href="#Environment-Setup">1.2. Environment Setup</a></li>
+</ul>
+</li>
+<li><a href="#Overview">2. Overview</a>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#Topic-for-Today">Topic for Today</a></li>
+<li><a href="#bts-setup">Behind-the-Scenes Setup</a></li>
+<li><a href="#why-cool">Why is it Cool?</a></li>
+<li><a href="#JAX%27-Libraries">JAX&rsquo; Libraries</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#Mutating-Immutable-Arrays">3. Mutating Immutable Arrays</a>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#Mutating-Arrays-in-NumPy">Mutating Arrays in NumPy</a></li>
+<li><a href="#Mutating-Arrays-in-JAX">Mutating Arrays in JAX</a></li>
+<li><a href="#Closures-%28Functional-Programming-Interlude%29">Closures (Functional Programming Interlude)</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#Randomness-in-JAX">4. Randomness in JAX</a>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#randn">Randomness in JAX</a></li>
+<li><a href="#RNG-Keys">RNG Keys</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#~grad~%3A-Advanced-AutoDiff">5. <code>grad</code>: Advanced AutoDiff</a>
+<ul>
+<li><a href="#~grad~-How-To">5.1. <code>grad</code> How-To</a>
+<ul>
+<li>
+<ul>
+<li><a href="#How-to-Take-Gradients">How to Take Gradients</a></li>
+<li><a href="#Differentiating-Different-Arguments">Differentiating Different Arguments</a></li>
+<li><a href="#Differentiation-and-Outputs">Differentiation and Outputs</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#Differentiating-Spectral-Radius">5.2. Differentiating Spectral Radius</a>
+<ul>
+<li><a href="#Default-Precision-Interlude">Default Precision Interlude</a>
+<ul>
+<li><a href="#Simple-Spectral-Radius">Simple Spectral Radius</a></li>
+<li><a href="#JAX%27-Default-Precision">JAX&rsquo; Default Precision</a></li>
+<li><a href="#Complex-Differentiation">Complex Differentiation</a></li>
+</ul>
+</li>
+<li><a href="#Complex-Gradients-and-Conjugates">Complex Gradients and Conjugates</a>
+<ul>
+<li><a href="#Setting-Up-Complex-Input">Setting Up Complex Input</a></li>
+<li><a href="#Differentiating-Through-Complex-Gradients">Differentiating Through Complex Gradients</a></li>
+<li><a href="#Why-Different-Gradients%3F">Why Different Gradients?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#~jit~-Compilation-via-XLA">6. <code>jit</code> Compilation via XLA</a>
+<ul>
+<li><a href="#Introducing-~jit~">6.1. Introducing <code>jit</code></a>
+<ul>
+<li><a href="#Side-Effects-in-a-~jit~-Context">Side Effects in a <code>jit</code> Context</a>
+<ul>
+<li><a href="#Just-in-Time-Compiling-via-XLA">Just-in-Time-Compiling via XLA</a></li>
+<li><a href="#JITting-State">JITting State</a></li>
+<li><a href="#JITting-State-Again">JITting State Again</a></li>
+</ul>
+</li>
+<li><a href="#Benchmarking-~jit~-on-~randn~">Benchmarking <code>jit</code> on <code>randn</code></a>
+<ul>
+<li><a href="#JITting-our-~randn~">JITting our <code>randn</code></a></li>
+<li><a href="#JIT-Results">JIT Results</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#More-about-XLA">6.2. More about XLA</a>
+<ul>
+<li>
+<ul>
+<li><a href="#About-XLA">About XLA</a></li>
+<li><a href="#When-XLA-Recompiles">When XLA Recompiles</a></li>
+<li><a href="#When-XLA-Recompiles-%28in-Text%29">When XLA Recompiles (in Text)</a></li>
+<li><a href="#When-XLA-Recompiles-%28in-Code%29">When XLA Recompiles (in Code)</a></li>
+<li><a href="#JIT-and-C%2B%2B">JIT and C++</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#LLVM-is-Smart...-And-XLA%3F">6.3. LLVM is Smart&#x2026; And XLA?</a>
+<ul>
+<li><a href="#Scalar-Evolution-with-Clang">Scalar Evolution with Clang</a>
+<ul>
+<li><a href="#Giant%27s-Shoulders">Giant&rsquo;s Shoulders</a></li>
+<li><a href="#Outputting-LLVM-IR">Outputting LLVM IR</a></li>
+<li><a href="#LLVM-Scalar-Evolution">LLVM Scalar Evolution</a></li>
+<li><a href="#More-on-Scalar-Evolution">More on Scalar Evolution</a></li>
+<li><a href="#Benchmarking-C-Sum">Benchmarking C Sum</a></li>
+</ul>
+</li>
+<li><a href="#clang-vs-xla">Clang/Math vs. XLA</a>
+<ul>
+<li><a href="#How-does-XLA-%2Bstack%2B-sum-up%3F">How does XLA <del>stack</del> sum up?</a></li>
+<li><a href="#Sum-Timings">Sum Timings</a></li>
+<li><a href="#JIT-vs.-Math">JIT vs. Math</a></li>
+<li><a href="#JIT-vs.-Math-Results">JIT vs. Math Results</a></li>
+</ul>
+</li>
+<li><a href="#Even-More-on-JIT-and-Math">Even More on JIT and Math</a>
+<ul>
+<li><a href="#More-JIT-vs.-Math">More JIT vs. Math</a></li>
+<li><a href="#XLA-Optimized-LLVM-IR">XLA-Optimized LLVM IR</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#~vmap~%3A-No-Batching-Required">7. <code>vmap</code>: No Batching Required</a>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#What-is-Batching">What is Batching</a></li>
+<li><a href="#~vmap~%3A-No-Batching-Required-2"><code>vmap</code>: No Batching Required</a></li>
+<li><a href="#More-Batching">More Batching</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#~pmap~%3A-Simple%2C-Differentiable-MPI">8. <code>pmap</code>: Simple, Differentiable MPI</a>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#~pmap~"><code>pmap</code></a></li>
+<li><a href="#~pmap~-and-Axes"><code>pmap</code> and Axes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#Write-your-own-Horovod%21">8.1. Write your own Horovod!</a>
+<ul>
+<li><a href="#Non-Distributed-Setup">Non-Distributed Setup</a>
+<ul>
+<li><a href="#Training-Code">Training Code</a></li>
+<li><a href="#interesting-training-code">Interesting Part of the Training Code</a></li>
+<li><a href="#Training-a-Spectral-Radius-MLP">Training a Spectral Radius MLP</a></li>
+<li><a href="#Training-Results">Training Results</a></li>
+</ul>
+</li>
+<li><a href="#Multi-Node-Distribution">Multi-Node Distribution</a>
+<ul>
+<li><a href="#Multi-Node-Distributed-Setup">Multi-Node Distributed Setup</a></li>
+<li><a href="#Multi-Node-Distributed-Setup-Code">Multi-Node Distributed Setup Code</a></li>
+</ul>
+</li>
+<li><a href="#Handling-GPU-Memory-Pre-Allocation">Handling GPU Memory Pre-Allocation</a>
+<ul>
+<li><a href="#Disable-GPU-Memory-Pre-Allocation">Disable GPU Memory Pre-Allocation</a></li>
+</ul>
+</li>
+<li><a href="#distributed-training">Distributed Training</a>
+<ul>
+<li><a href="#Distributing-our-Training-Code">Distributing our Training Code</a></li>
+<li><a href="#Training-a-Spectral-Radius-MLP-Distributively">Training a Spectral Radius MLP Distributively</a></li>
+<li><a href="#Distributed-Training-Results">Distributed Training Results</a></li>
+<li><a href="#Did-it-Learn%3F">Did it Learn?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#Summary">9. Summary</a>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#Advantages">Advantages</a></li>
+<li><a href="#Disadvantages">Disadvantages</a></li>
+<li><a href="#Neural-Network-Libraries">Neural Network Libraries</a></li>
+<li><a href="#~functorch~"><code>functorch</code></a></li>
+<li><a href="#Thanks-for-Reading%21">Thanks for Reading!</a></li>
+<li><a href="#Questions%3F">Questions?</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#Appendix">10. Appendix</a>
+<ul>
+<li>
+<ul>
+<li>
+<ul>
+<li><a href="#References">References</a></li>
+<li><a href="#Extra-Recommendations">Extra Recommendations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</nav>
+
+<section id="outline-container-Setup" class="outline-2">
+<h2 id="Setup"><span class="section-number-2">1.</span> <a href="#Setup">Setup</a></h2>
+<div class="outline-text-2" id="text-1">
+</div>
+<div id="outline-container-About-this-Text" class="outline-3">
+<h3 id="About-this-Text"><span class="section-number-3">1.1.</span> <a href="#About-this-Text">About this Text</a></h3>
+<div class="outline-text-3" id="text-1-1">
+<p>
+I created this as a slide-based presentation for the Helmholtz AI Food
+for Thought seminar in order to introduce researchers from various
+backgrounds to JAX. This text was produced from the same <a href="https://orgmode.org">Org</a> source,
+with some extra commentary text interleaved. That&rsquo;s why the text may
+feel choppy at times and code snippets are more compressed instead of
+following good style. I tried my best to explain everything I
+mentioned in the presentation as well.
+</p>
+
+<p>
+Also, this is the &ldquo;extended edition&rdquo;, including many more code
+snippets as well as some behind-the-scenes stuff. This way, everything
+should be reproducible and you should have a good base reference in
+case you decide to pick up JAX.
+</p>
+
+<p>
+You can <a href="https://fz-juelich.sciebo.de/s/tSxkFWhsuNR7aMx">download the original slides here</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-Environment-Setup" class="outline-3">
+<h3 id="Environment-Setup"><span class="section-number-3">1.2.</span> <a href="#Environment-Setup">Environment Setup</a></h3>
+<div class="outline-text-3" id="text-1-2">
+<p>
+This is the environment I used. I gave specific version numbers as
+comments in case you need the better reproducibility.
+</p>
+
+<p>
+Sadly, I was unable to compile JAX with GPU support; the version of
+CUDA the official NVIDIA drivers support for Ubuntu 20.04 is no longer
+supported by JAX.
+</p>
+
+<p>
+That&rsquo;s why all numbers I will show you need to be taken with a grain
+of salt&nbsp;&#x2013; we aren&rsquo;t able to use JAX&rsquo; killer feature!
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">conda create -p env <span style="color: #268bd2;">python</span>=3.8
+conda activate ./env
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">`pytorch` version: 1.10.0</span>
+conda install pytorch <span style="color: #268bd2;">cudatoolkit</span>=10.2 -c pytorch
+python -m pip install --upgrade pip
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">`jax` version: 0.2.25</span>
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">`jaxlib` version: 0.1.74</span>
+python -m pip install --upgrade jax jaxlib
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">I only have the CPU version.</span>
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-shell">clang --version | sed <span style="color: #2aa198;">'s/ *$//'</span>
+</pre>
+</div>
+</div>
+</div>
+</section>
+<section id="outline-container-Overview" class="outline-2">
+<h2 id="Overview"><span class="section-number-2">2.</span> <a href="#Overview">Overview</a></h2>
+<div class="outline-text-2" id="text-2">
+</div>
+
+<div id="outline-container-Topic-for-Today" class="outline-5">
+<h5 id="Topic-for-Today"><a href="#Topic-for-Today">Topic for Today</a></h5>
+<div class="outline-text-5" id="text-Topic-for-Today">
+<ul class="org-ul">
+<li><a href="https://github.com/google/jax">JAX</a> is a <b>cool</b> new corporation-backed framework for differentiable
+programming/scientific computing.</li>
+<li>Faster than <a href="https://numpy.org">NumPy</a>/<a href="https://scipy.org">SciPy</a> due to GPU usage and &#x2026;</li>
+<li>Compilability via <a href="https://www.tensorflow.org/xla/">Accelerated Linear Algebra compiler</a> (XLA, reused
+from <a href="https://www.tensorflow.org">TensorFlow</a>).</li>
+<li>More usability over NumPy and <a href="https://pytorch.org">PyTorch</a>.</li>
+<li>Due to &ldquo;forced&rdquo; <a href="https://en.wikipedia.org/wiki/Functional_programming">functional style</a>, get good code for free!</li>
+<li><b>Everything I will show you ran on the CPU!</b></li>
+</ul>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgb7b25f3"><span style="color: #859900; font-weight: bold;">import</span> functools
+<span style="color: #859900; font-weight: bold;">import</span> os
+<span style="color: #859900; font-weight: bold;">import</span> time
+<span style="color: #859900; font-weight: bold;">import</span> timeit
+
+<span style="color: #859900; font-weight: bold;">import</span> jax
+<span style="color: #859900; font-weight: bold;">import</span> jax.numpy <span style="color: #859900; font-weight: bold;">as</span> jnp
+<span style="color: #859900; font-weight: bold;">import</span> numpy <span style="color: #859900; font-weight: bold;">as</span> np
+<span style="color: #859900; font-weight: bold;">import</span> torch
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-bts-setup" class="outline-5">
+<h5 id="bts-setup"><a href="#bts-setup">Behind-the-Scenes Setup</a></h5>
+<div class="outline-text-5" id="text-bts-setup">
+<p>
+The following setup code can safely be ignored (<a href="#why-cool">skip ahead</a>) but
+achieves the following:
+</p>
+
+<ul class="org-ul">
+<li>XLA IR output in directory <code>generated</code>.</li>
+<li>2 simulated devices for XLA.</li>
+<li>Activate/disable GPUs in both JAX and PyTorch.</li>
+<li>Less print output.</li>
+<li>Initialize JAX and PyTorch so we don&rsquo;t see warnings later.</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-why-cool" class="outline-5">
+<h5 id="why-cool"><a href="#why-cool">Why is it Cool?</a></h5>
+<div class="outline-text-5" id="text-why-cool">
+<ul class="org-ul">
+<li>NumPy/SciPy on the GPU.</li>
+<li>No mutable state means much joy: easier maintainability, easier
+scalability.</li>
+<li>No need for manual batching.</li>
+<li>Complex number differentiation <i>previously</i><sup><a id="fnr.1" class="footref" href="#fn.1" role="doc-backlink">1</a></sup> not possible on
+PyTorch. Certain unsupported cases may still be out there.</li>
+<li>User-friendly parallelism.</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-JAX%27-Libraries" class="outline-5">
+<h5 id="JAX%27-Libraries"><a href="#JAX%27-Libraries">JAX&rsquo; Libraries</a></h5>
+<div class="outline-text-5" id="text-JAX%27-Libraries">
+<dl class="org-dl">
+<dt><code>jax</code></dt><dd>Mostly important for function transformations/compositions.</dd>
+<dt><code>jax.numpy</code></dt><dd>NumPy replacement.</dd>
+<dt><code>jax.scipy</code></dt><dd>SciPy replacement.</dd>
+<dt><code>jax.random</code></dt><dd>Deterministic randomness.</dd>
+<dt><code>jax.lax</code></dt><dd>Lower-level operations.</dd>
+<dt><code>jax.profiler</code></dt><dd>Analyze performance.</dd>
+</dl>
+
+<p>
+Just a selection, there are more!
+</p>
+</div>
+</div>
+</section>
+
+<section id="outline-container-Mutating-Immutable-Arrays" class="outline-2">
+<h2 id="Mutating-Immutable-Arrays"><span class="section-number-2">3.</span> <a href="#Mutating-Immutable-Arrays">Mutating Immutable Arrays</a></h2>
+<div class="outline-text-2" id="text-3">
+</div>
+<div id="outline-container-Mutating-Arrays-in-NumPy" class="outline-5">
+<h5 id="Mutating-Arrays-in-NumPy"><a href="#Mutating-Arrays-in-NumPy">Mutating Arrays in NumPy</a></h5>
+<div class="outline-text-5" id="text-Mutating-Arrays-in-NumPy">
+<p>
+In NumPy:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">x</span> = np.eye(2)
+<span style="color: #268bd2;">x</span>[0, 0] = 2
+<span style="color: #268bd2;">x</span>[:, -1] *= -3
+x
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">2</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-right">0</td>
+<td class="org-right">-3</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Some things to note for those not familiar with Python and/or NumPy:
+</p>
+
+<ul class="org-ul">
+<li>In Python, indices start at 0, so the first element of an array is
+at index 0.</li>
+<li>NumPy and JAX call any \( n \)-dimensional tensor an <i>array</i>, so do
+not expect a 1-dimensional vector when you see the word &ldquo;array&rdquo;.</li>
+<li>The colon &ldquo;:&rdquo; we used for indexing selects all elements over that
+dimension. In our case, this resulted in a whole row of the matrix
+being indexed.</li>
+<li>Negative values index from the end (but, confusingly, starting at 1
+this time). So indexing with -1 yields the very last value of an
+array. Combining the colon with -1 in that order means we index the
+last row of the array.</li>
+<li>The <i>shape</i> of an array is a collection of its dimensionalities
+(<code>x</code>&rsquo;s shape is <code>(2, 2)</code>).</li>
+<li>The <i>dtype</i> of an array is the type of its elements.</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-Mutating-Arrays-in-JAX" class="outline-5">
+<h5 id="Mutating-Arrays-in-JAX"><a href="#Mutating-Arrays-in-JAX">Mutating Arrays in JAX</a></h5>
+<div class="outline-text-5" id="text-Mutating-Arrays-in-JAX">
+<p>
+In JAX:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgcb63c8c"><span style="color: #268bd2;">x</span> = jnp.eye(2)
+
+<span style="color: #859900; font-weight: bold;">try</span>:
+    x[0, 0] = 2
+<span style="color: #859900; font-weight: bold;">except</span> <span style="color: #b58900;">TypeError</span>:
+    <span style="color: #859900; font-weight: bold;">pass</span>
+<span style="color: #859900; font-weight: bold;">else</span>:
+    <span style="color: #859900; font-weight: bold;">raise</span> <span style="color: #b58900;">TypeError</span>(<span style="color: #2aa198;">'array is mutable'</span>)
+
+x = x.at[0, 0].<span style="color: #657b83; font-weight: bold;">set</span>(2)
+<span style="color: #268bd2;">x</span> = x.at[:, -1].multiply(-3)
+x
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">2</td>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-right">0</td>
+<td class="org-right">-3</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+You will receive helpful errors in case you forget this!
+</p>
+
+<p>
+The <code>try-except-else</code> block of the code has the following effect: if
+the statement in the <code>try</code> block <code>x[0, 0] = 2</code> raises a <code>TypeError</code>,
+we simply ignore it. That&rsquo;s what the <code>except TypeError</code> block does. If
+we <i>did not get any error</i>, i.e. no exception was caught,
+the <code>else</code> block executes and raises a <code>TypeError</code> telling us that the
+array was mutable after all. Since the code executed and evaluated
+just fine, we know that JAX raised an error upon trying to mutate the
+array, meaning JAX arrays are not mutable as expected. (Whew!)
+</p>
+
+<p>
+You may think performance tanks due to the extra allocations; however,
+these are optimized away to in-place mutations during JIT
+(just-in-time) compilation.
+</p>
+</div>
+</div>
+
+<div id="outline-container-Closures-%28Functional-Programming-Interlude%29" class="outline-5">
+<h5 id="Closures-%28Functional-Programming-Interlude%29"><a href="#Closures-%28Functional-Programming-Interlude%29">Closures (Functional Programming Interlude)</a></h5>
+<div class="outline-text-5" id="text-Closures-%28Functional-Programming-Interlude%29">
+<p>
+Function capturing something from an outer environment. (You&rsquo;ve been
+using this whenever you refer to a non-local, e.g. global,
+variable inside a function.) Very useful for programming with JAX, but
+be careful about mutable state!
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">create_counter</span>():
+    <span style="color: #268bd2;">count</span> = 0
+
+    <span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">inc</span>():
+        <span style="color: #859900; font-weight: bold;">nonlocal</span> count
+        <span style="color: #268bd2;">count</span> += 1
+        <span style="color: #859900; font-weight: bold;">return</span> count
+
+    <span style="color: #859900; font-weight: bold;">return</span> inc
+
+<span style="color: #268bd2;">counter</span> = create_counter()
+<span style="color: #2aa198;">', '</span>.join(<span style="color: #657b83; font-weight: bold;">map</span>(<span style="color: #657b83; font-weight: bold;">str</span>, [counter(), counter(), counter()]))
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">1, 2, 3</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+If you don&rsquo;t know Python: the <code>def</code> indicates a function definition.
+</p>
+
+<p>
+In Python, closure capturing rules are the same as for function
+argument passing, also called &ldquo;pass-by-sharing&rdquo;&nbsp;&#x2013; non-primitives are
+<i>referenced</i> (imagine a C pointer on that object). So outside
+modifications to non-primitives will be visible inside the closure as
+well!
+</p>
+
+<p>
+This behavior varies between programming languages, so keep in mind
+that this is a Python implementation detail.
+</p>
+</div>
+</div>
+</section>
+
+<section id="outline-container-Randomness-in-JAX" class="outline-2">
+<h2 id="Randomness-in-JAX"><span class="section-number-2">4.</span> <a href="#Randomness-in-JAX">Randomness in JAX</a></h2>
+<div class="outline-text-2" id="text-4">
+</div>
+<div id="outline-container-randn" class="outline-5">
+<h5 id="randn"><a href="#randn">Randomness in JAX</a></h5>
+<div class="outline-text-5" id="text-randn">
+<p>
+Stateless RNG makes reproducibility fun and easy as pie!<sup><a id="fnr.2" class="footref" href="#fn.2" role="doc-backlink">2</a></sup>
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org0be2162"><span style="color: #268bd2;">seed</span> = 0
+<span style="color: #268bd2;">rng_key</span> = jax.random.PRNGKey(seed)
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">randn</span>(rng_key, shape, dtype=<span style="color: #657b83; font-weight: bold;">float</span>):
+    rng_key, subkey = jax.random.split(rng_key)
+    rands = jax.random.normal(subkey, shape, dtype=dtype)
+    <span style="color: #859900; font-weight: bold;">return</span> rng_key, rands
+
+rng_key, rands = randn(rng_key, (2, 3))
+rands
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">-1.458</td>
+<td class="org-right">-2.047</td>
+<td class="org-right">-1.424</td>
+</tr>
+
+<tr>
+<td class="org-right">1.168</td>
+<td class="org-right">-0.976</td>
+<td class="org-right">-1.272</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+RNG keys are the way JAX represents RNG state. We called the key we
+use right away <code>subkey</code> even though it is the exact same kind of
+object as <code>rng_key</code>. This naming is simply a nice pattern to use
+because we know from the names which keys we are going to &ldquo;consume&rdquo;
+and which we will pass along.
+</p>
+
+<p>
+You can also split off more than one key by passing an additional
+integer to <code>jax.random.split</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-RNG-Keys" class="outline-5">
+<h5 id="RNG-Keys"><a href="#RNG-Keys">RNG Keys</a></h5>
+<div class="outline-text-5" id="text-RNG-Keys">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">_</span>, <span style="color: #268bd2;">rands</span> = randn(rng_key, (2, 3))
+rands
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">0.932</td>
+<td class="org-right">-0.004</td>
+<td class="org-right">-0.74</td>
+</tr>
+
+<tr>
+<td class="org-right">-1.427</td>
+<td class="org-right">1.06</td>
+<td class="org-right">0.929</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Notice we did not update our <code>rng_key</code>, instead discarding that part
+of the result. Can you guess what happens when we generate numbers
+again?
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgd3ec0d7"><span style="color: #268bd2;">rng_key</span>, <span style="color: #268bd2;">rands</span> = randn(rng_key, (2, 3))
+rands
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">0.932</td>
+<td class="org-right">-0.004</td>
+<td class="org-right">-0.74</td>
+</tr>
+
+<tr>
+<td class="org-right">-1.427</td>
+<td class="org-right">1.06</td>
+<td class="org-right">0.929</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+This time, we updated our <code>rng_key</code>: the world of randomness is whole
+again! Notice this is a really easy way to produce random numbers that
+you (hopefully) want to stay the same.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org81d217e"><span style="color: #268bd2;">rng_key</span>, <span style="color: #268bd2;">rands</span> = randn(rng_key, (2, 3))
+rands
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">1.169</td>
+<td class="org-right">0.312</td>
+<td class="org-right">-0.571</td>
+</tr>
+
+<tr>
+<td class="org-right">0.137</td>
+<td class="org-right">0.742</td>
+<td class="org-right">0.038</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+
+<section id="outline-container-~grad~%3A-Advanced-AutoDiff" class="outline-2">
+<h2 id="~grad~%3A-Advanced-AutoDiff"><span class="section-number-2">5.</span> <a href="#~grad~%3A-Advanced-AutoDiff"><code>grad</code>: Advanced AutoDiff</a></h2>
+<div class="outline-text-2" id="text-5">
+</div>
+<div id="outline-container-~grad~-How-To" class="outline-3">
+<h3 id="~grad~-How-To"><span class="section-number-3">5.1.</span> <a href="#~grad~-How-To"><code>grad</code> How-To</a></h3>
+<div class="outline-text-3" id="text-5-1">
+</div>
+
+<div id="outline-container-How-to-Take-Gradients" class="outline-5">
+<h5 id="How-to-Take-Gradients"><a href="#How-to-Take-Gradients">How to Take Gradients</a></h5>
+<div class="outline-text-5" id="text-How-to-Take-Gradients">
+<p>
+JAX&rsquo; <code>grad</code> function transformation takes a function we want to
+differentiate as input and returns its gradient given arbitrary
+inputs. By default, it takes the derivative with regard to the first
+argument. Multiple <code>jax.grad</code> applications can be nested to take
+higher-order derivatives.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">expo_fn</span>(x, y):
+    <span style="color: #859900; font-weight: bold;">return</span> x**4 + 2**y + 3
+
+<span style="color: #268bd2;">x</span> = 1.0
+<span style="color: #268bd2;">y</span> = 2.0
+
+<span style="color: #268bd2;">grad_x_fn</span> = jax.grad(expo_fn)
+<span style="color: #268bd2;">grad2_x_fn</span> = jax.grad(grad_x_fn)
+<span style="color: #268bd2;">grad3_x_fn</span> = jax.grad(grad2_x_fn)
+[
+    [<span style="color: #2aa198;">'function'</span>, r<span style="color: #2aa198;">'\partial{}expo_fn/\partial{}\(x\)'</span>],
+    [<span style="color: #2aa198;">'grad_x'</span>, grad_x_fn(x, y).item()],
+    [<span style="color: #2aa198;">'grad2_x'</span>, grad2_x_fn(x, y).item()],
+    [<span style="color: #2aa198;">'grad3_x'</span>, grad3_x_fn(x, y).item()],
+]
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">function</th>
+<th scope="col" class="org-right">&part;expo_fn/&part;\(x\)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>grad_x</code></td>
+<td class="org-right">4.0</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>grad2_x</code></td>
+<td class="org-right">12.0</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>grad3_x</code></td>
+<td class="org-right">24.0</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-Differentiating-Different-Arguments" class="outline-5">
+<h5 id="Differentiating-Different-Arguments"><a href="#Differentiating-Different-Arguments">Differentiating Different Arguments</a></h5>
+<div class="outline-text-5" id="text-Differentiating-Different-Arguments">
+<p>
+To differentiate with regard to other arguments of our functions, we
+pass <code>jax.grad</code> the indices of those arguments in the <code>argnums</code>
+argument. We can also specify multiple <code>argnums</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">x</span> = 1.0
+<span style="color: #268bd2;">y</span> = 2.0
+
+<span style="color: #268bd2;">grad_y_fn</span> = jax.grad(expo_fn, argnums=1)
+grad_xy_fn = jax.grad(expo_fn, argnums=(0, 1))
+[
+    [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'result'</span>],
+    [<span style="color: #2aa198;">'grad_y'</span>, grad_y_fn(x, y).item()],
+    [<span style="color: #2aa198;">'grad_xy'</span>, [g.item() <span style="color: #859900; font-weight: bold;">for</span> g <span style="color: #859900; font-weight: bold;">in</span> grad_xy_fn(x, y)]],
+]
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">function</th>
+<th scope="col" class="org-left">result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>grad_y</code></td>
+<td class="org-left">2.7725887298583984</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>grad_xy</code></td>
+<td class="org-left">(4.0 2.7725887298583984)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-Differentiation-and-Outputs" class="outline-5">
+<h5 id="Differentiation-and-Outputs"><a href="#Differentiation-and-Outputs">Differentiation and Outputs</a></h5>
+<div class="outline-text-5" id="text-Differentiation-and-Outputs">
+<p>
+In machine learning, we really like to monitor our <i>loss values</i> of
+whose function we take the gradient. In order to not have to evaluate
+the function twice and losing precious performance, JAX offers the
+<code>jax.value_and_grad</code> function transformation which returns the result
+of the function as well as its gradient. Now we can log our losses and
+sleep again.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">result_grad_fn</span> = jax.value_and_grad(expo_fn)
+
+<span style="color: #268bd2;">result</span>, <span style="color: #268bd2;">grad</span> = result_grad_fn(x, y)
+</pre>
+</div>
+
+<p>
+Fun fact: <code>jax.value_and_grad</code> is actually what <code>jax.grad</code> calls as
+well, it just tosses <code>result</code>.
+</p>
+
+<hr>
+
+<p>
+Let&rsquo;s assume the function we want to differentiate has multiple
+outputs, for example maybe we need to return some new state!
+</p>
+
+<p>
+Let&rsquo;s assume we went through the trouble of collecting all our extra
+return values in a tuple. We then also changed our function to return
+a pair (i.e. another tuple) containing (in this order)
+</p>
+
+<ol class="org-ol">
+<li>the value we want to differentiate through, and</li>
+<li>the tuple of extra return values.</li>
+</ol>
+
+<p>
+We can then supply the <code>has_aux=True</code> argument to <code>jax.grad</code> and
+happily differentiate again while keeping our state intact:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">poly_fn_and_aux</span>(x, y):
+    <span style="color: #859900; font-weight: bold;">return</span> x**4 + (y - 1)**2 + 3, ({<span style="color: #2aa198;">'y'</span>: y}, 1337)
+
+<span style="color: #268bd2;">grad_aux_fn</span> = jax.grad(poly_fn_and_aux, has_aux=<span style="color: #268bd2; font-weight: bold;">True</span>)
+grad, aux = grad_aux_fn(x, y)
+</pre>
+</div>
+
+<hr>
+
+<p>
+Of course, the same works for <code>jax.value_and_grad</code> as well; however,
+its tree of return values needs some special care to deconstruct:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">result_aux_grad_fn</span> = jax.value_and_grad(poly_fn_and_aux, has_aux=<span style="color: #268bd2; font-weight: bold;">True</span>)
+(result, aux), grad = result_aux_grad_fn(x, y)
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-Differentiating-Spectral-Radius" class="outline-3">
+<h3 id="Differentiating-Spectral-Radius"><span class="section-number-3">5.2.</span> <a href="#Differentiating-Spectral-Radius">Differentiating Spectral Radius</a></h3>
+<div class="outline-text-3" id="text-5-2">
+</div>
+
+<div id="outline-container-Default-Precision-Interlude" class="outline-4">
+<h4 id="Default-Precision-Interlude"><a href="#Default-Precision-Interlude">Default Precision Interlude</a></h4>
+<div class="outline-text-4" id="text-Default-Precision-Interlude">
+</div>
+<div id="outline-container-Simple-Spectral-Radius" class="outline-5">
+<h5 id="Simple-Spectral-Radius"><a href="#Simple-Spectral-Radius">Simple Spectral Radius</a></h5>
+<div class="outline-text-5" id="text-Simple-Spectral-Radius">
+<div class="org-src-container">
+<pre class="src src-python" id="orgf750e0d"><span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">jax_spectral_radius</span>(mat):
+    <span style="color: #268bd2;">eigvals</span> = jnp.linalg.eigvals(mat)
+    <span style="color: #268bd2;">spectral_radius</span> = jnp.<span style="color: #657b83; font-weight: bold;">max</span>(jnp.<span style="color: #657b83; font-weight: bold;">abs</span>(eigvals))
+    <span style="color: #859900; font-weight: bold;">return</span> spectral_radius
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">torch_spectral_radius</span>(mat):
+    <span style="color: #268bd2;">eigvals</span> = torch.linalg.eigvals(mat)
+    <span style="color: #268bd2;">spectral_radius</span> = torch.<span style="color: #657b83; font-weight: bold;">max</span>(torch.<span style="color: #657b83; font-weight: bold;">abs</span>(eigvals))
+    <span style="color: #859900; font-weight: bold;">return</span> spectral_radius
+
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Eigenvalues: 1 &#177; i</span>
+ceig_mat = np.array([[1.0, -1.0], [1.0, 1.0]])
+<span style="color: #268bd2;">jax_mat</span> = jnp.array(ceig_mat)
+<span style="color: #268bd2;">torch_mat</span> = torch.from_numpy(ceig_mat)
+[
+    [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'result'</span>],
+    [<span style="color: #2aa198;">'jax'</span>, jax_spectral_radius(jax_mat).item()],
+    [<span style="color: #2aa198;">'torch'</span>, torch_spectral_radius(torch_mat).item()],
+    [<span style="color: #2aa198;">'sqrt'</span>, np.sqrt(2)],
+]
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-JAX%27-Default-Precision" class="outline-5">
+<h5 id="JAX%27-Default-Precision"><a href="#JAX%27-Default-Precision">JAX&rsquo; Default Precision</a></h5>
+<div class="outline-text-5" id="text-JAX%27-Default-Precision">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">function</th>
+<th scope="col" class="org-right">result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>jax</code></td>
+<td class="org-right">1.4142135381698608</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>torch</code></td>
+<td class="org-right">1.4142135623730951</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>sqrt</code></td>
+<td class="org-right">1.4142135623730951</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Wait! JAX&rsquo; precision is seriously behind PyTorch here! Is PyTorch just
+more precise or what&rsquo;s going on?
+</p>
+
+<p>
+While both JAX and PyTorch have single-precision (32-bit) floating
+point numbers as their default <code>dtype</code>, NumPy uses double-precision
+(64-bit) floats by default.
+</p>
+
+<p>
+Now, when we converted the matrix from NumPy to the respective
+frameworks, JAX&rsquo; <code>jnp.array</code> created a new array from NumPy&rsquo;s, thus
+converting the <code>dtype</code> to JAX&rsquo; default. This leaves us with
+<code>jax_mat.dtype</code> being <code>jnp.float32</code>. However, PyTorch&rsquo;s
+<code>torch.from_numpy</code> adapted the <code>dtype</code> exactly, which is why PyTorch
+had double the precision to work with.
+</p>
+
+<p>
+With that knowledge, let&rsquo;s make the test more fair by converting
+<code>torch_mat</code> to single-precision as well:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgde52817"><span style="color: #268bd2;">torch_mat</span> = torch_mat.<span style="color: #657b83; font-weight: bold;">float</span>()
+[
+    [<span style="color: #2aa198;">'jax'</span>, jax_spectral_radius(jax_mat).item()],
+    [<span style="color: #2aa198;">'torch'</span>, torch_spectral_radius(torch_mat).item()],
+]
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left"><code>jax</code></td>
+<td class="org-right">1.4142135381698608</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>torch</code></td>
+<td class="org-right">1.4142135381698608</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Ahh, all is well; JAX is not lacking in terms of precision after all
+(at least in this small example).
+</p>
+
+<p>
+Let&rsquo;s check out what C says to see just how precise we are:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C">printf(<span style="color: #2aa198;">"sqrtf, %.16f"</span>, sqrtf(2.0f));
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left"><code>sqrtf</code></td>
+<td class="org-right">1.4142135381698608</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+<div id="outline-container-Complex-Differentiation" class="outline-5">
+<h5 id="Complex-Differentiation"><a href="#Complex-Differentiation">Complex Differentiation</a></h5>
+<div class="outline-text-5" id="text-Complex-Differentiation">
+<p>
+Let&rsquo;s finally differentiate some complex numbers. You may not ever
+have seen this way to differentiate in PyTorch&nbsp;&#x2013; it&rsquo;s the functional
+way!
+</p>
+
+<p>
+Just to clarify again, being able to take this gradient is a rather
+recent change in PyTorch: stable since PyTorch 1.9.0, June 2021.
+Originally, I wanted to show here that JAX is capable of
+differentiating something that PyTorch cannot. The competition has
+caught up, though!
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">jax_grad</span> = jax.grad(jax_spectral_radius)(jax_mat)
+
+torch_mat.requires_grad_(<span style="color: #268bd2; font-weight: bold;">True</span>)
+<span style="color: #268bd2;">torch_rho</span> = torch_spectral_radius(torch_mat)
+<span style="color: #268bd2;">torch_grad</span> = torch.autograd.grad(torch_rho, torch_mat)
+
+<span style="color: #268bd2;">decimals</span> = 3
+[
+    [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'grad'</span>],
+    [<span style="color: #2aa198;">'jax'</span>, round_tree(jax_grad.tolist(), decimals)],
+    [<span style="color: #2aa198;">'torch'</span>, round_tree(torch_grad[0].tolist(), decimals)],
+]
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">function</th>
+<th scope="col" class="org-left">grad</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>jax</code></td>
+<td class="org-left">((0.354 -0.354) (0.354 0.354))</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>torch</code></td>
+<td class="org-left">((0.354 -0.354) (0.354 0.354))</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+<div id="outline-container-Complex-Gradients-and-Conjugates" class="outline-4">
+<h4 id="Complex-Gradients-and-Conjugates"><a href="#Complex-Gradients-and-Conjugates">Complex Gradients and Conjugates</a></h4>
+<div class="outline-text-4" id="text-Complex-Gradients-and-Conjugates">
+</div>
+<div id="outline-container-Setting-Up-Complex-Input" class="outline-5">
+<h5 id="Setting-Up-Complex-Input"><a href="#Setting-Up-Complex-Input">Setting Up Complex Input</a></h5>
+<div class="outline-text-5" id="text-Setting-Up-Complex-Input">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">complex_mat</span> = np.array([[1 + 1j, -1], [1, 1]])
+<span style="color: #268bd2;">jax_complex_mat</span> = jnp.array(complex_mat)
+<span style="color: #268bd2;">torch_complex_mat</span> = torch.from_numpy(complex_mat).to(torch.complex64)
+[
+    [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'result'</span>],
+    <span style="color: #268bd2; font-weight: bold;">None</span>,
+    [<span style="color: #2aa198;">'jax'</span>, jax_spectral_radius(jax_complex_mat).item()],
+    [<span style="color: #2aa198;">'torch'</span>, torch_spectral_radius(torch_complex_mat).item()],
+]
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">function</th>
+<th scope="col" class="org-right">result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">jax</td>
+<td class="org-right">1.9021130800247192</td>
+</tr>
+
+<tr>
+<td class="org-left">torch</td>
+<td class="org-right">1.9021130800247192</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-Differentiating-Through-Complex-Gradients" class="outline-5">
+<h5 id="Differentiating-Through-Complex-Gradients"><a href="#Differentiating-Through-Complex-Gradients">Differentiating Through Complex Gradients</a></h5>
+<div class="outline-text-5" id="text-Differentiating-Through-Complex-Gradients">
+<p>
+Due to JAX doing some heavy <a href="https://en.wikipedia.org/wiki/Abstract_syntax_tree">abstract syntax tree</a> (AST) work, it
+includes a nice module with tree-related functions called
+<code>jax.tree_util</code>. We will use it to conjugate the tree of gradients we
+obtain from <code>jax.grad</code> (for no special reason at all).
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">jax_grad</span> = jax.grad(jax_spectral_radius)(jax_complex_mat)
+<span style="color: #268bd2;">jax_conj_grad</span> = jax.tree_util.tree_map(jnp.conj, jax_grad)
+
+torch_complex_mat.requires_grad_(<span style="color: #268bd2; font-weight: bold;">True</span>)
+<span style="color: #268bd2;">torch_rho</span> = torch_spectral_radius(torch_complex_mat)
+<span style="color: #268bd2;">torch_grad</span> = torch.autograd.grad(torch_rho, torch_complex_mat)
+
+<span style="color: #268bd2;">decimals</span> = 3
+[
+    [<span style="color: #2aa198;">'type'</span>, <span style="color: #2aa198;">'gradient'</span>],
+    <span style="color: #268bd2; font-weight: bold;">None</span>,
+    [<span style="color: #2aa198;">'jax'</span>, round_tree(jax_grad.tolist(), decimals)],
+    [<span style="color: #2aa198;">'jax conj'</span>, round_tree(jax_conj_grad.tolist(), decimals)],
+    [<span style="color: #2aa198;">'torch'</span>, round_tree(torch_grad[0].tolist(), decimals)],
+]
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-left">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">type</th>
+<th scope="col" class="org-left">gradient</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">jax</td>
+<td class="org-left">(((0.38-0.616j) (-0.38-0.235j)) ((0.38+0.235j) (0.145-0.235j)))</td>
+</tr>
+
+<tr>
+<td class="org-left">jax conj</td>
+<td class="org-left">(((0.38+0.616j) (-0.38+0.235j)) ((0.38-0.235j) (0.145+0.235j)))</td>
+</tr>
+
+<tr>
+<td class="org-left">torch</td>
+<td class="org-left">(((0.38+0.616j) (-0.38+0.235j)) ((0.38-0.235j) (0.145+0.235j)))</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Oops! It seems there is a discrepancy here&#x2026;
+</p>
+
+<p>
+Without going too much into the math, steepest-descent algorithms need
+the conjugate of a complex gradient in order to walk in the correct
+direction. As PyTorch is a deep learning framework first-and-foremost,
+it conjugates its gradients by default so users can go plug-and-play
+when fooling around with complex numbers and optimization.
+</p>
+</div>
+</div>
+
+<div id="outline-container-Why-Different-Gradients%3F" class="outline-5">
+<h5 id="Why-Different-Gradients%3F"><a href="#Why-Different-Gradients%3F">Why Different Gradients?</a></h5>
+<div class="outline-text-5" id="text-Why-Different-Gradients%3F">
+<ul class="org-ul">
+<li>JAX chose mathematical/API consistency (also same behavior as in
+<a href="https://github.com/HIPS/autograd">Autograd</a><sup><a id="fnr.3" class="footref" href="#fn.3" role="doc-backlink">3</a></sup>).</li>
+<li>However, <b>not</b> the gradients to use for steepest-descent
+optimization! (Conjugate before.)</li>
+<li>PyTorch has the more practical default here.</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="outline-container-~jit~-Compilation-via-XLA" class="outline-2">
+<h2 id="~jit~-Compilation-via-XLA"><span class="section-number-2">6.</span> <a href="#~jit~-Compilation-via-XLA"><code>jit</code> Compilation via XLA</a></h2>
+<div class="outline-text-2" id="text-6">
+</div>
+<div id="outline-container-Introducing-~jit~" class="outline-3">
+<h3 id="Introducing-~jit~"><span class="section-number-3">6.1.</span> <a href="#Introducing-~jit~">Introducing <code>jit</code></a></h3>
+<div class="outline-text-3" id="text-6-1">
+</div>
+
+<div id="outline-container-Side-Effects-in-a-~jit~-Context" class="outline-4">
+<h4 id="Side-Effects-in-a-~jit~-Context"><a href="#Side-Effects-in-a-~jit~-Context">Side Effects in a <code>jit</code> Context</a></h4>
+<div class="outline-text-4" id="text-Side-Effects-in-a-~jit~-Context">
+</div>
+<div id="outline-container-Just-in-Time-Compiling-via-XLA" class="outline-5">
+<h5 id="Just-in-Time-Compiling-via-XLA"><a href="#Just-in-Time-Compiling-via-XLA">Just-in-Time-Compiling via XLA</a></h5>
+<div class="outline-text-5" id="text-Just-in-Time-Compiling-via-XLA">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">print_hello</span>():
+    <span style="color: #657b83; font-weight: bold;">print</span>(<span style="color: #2aa198;">'Hello!'</span>)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Side effect!</span>
+
+jax.jit(print_hello)()
+</pre>
+</div>
+
+<p>
+Hello!
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">jit_print_hello</span> = jax.jit(print_hello)
+jit_print_hello()
+jit_print_hello()
+<span style="color: #657b83; font-weight: bold;">print</span>(<span style="color: #2aa198;">'... Hello? :('</span>)
+</pre>
+</div>
+
+<p>
+&#x2026; Hello? :(
+</p>
+
+<p>
+Before we dive in here, a quick terminology heads-up: &ldquo;to JIT
+something&rdquo;, means &ldquo;to just-in-time-compile something&rdquo;.
+</p>
+
+<p>
+Multiple interesting things happened in these short snippets:
+</p>
+
+<ol class="org-ol">
+<li>We did not get any other &ldquo;Hello!&rdquo; after the first one in general.</li>
+<li>We did not get a second &ldquo;Hello!&rdquo; even though we applied <code>jax.jit</code>
+to <code>print_hello</code> a second time.</li>
+<li>We <b>did</b> get a &ldquo;Hello!&rdquo; for the first call of the JITted function.</li>
+</ol>
+
+<p>
+Let&rsquo;s go through these in order:
+</p>
+
+<ol class="org-ol">
+<li>The <code>print</code> call is called a <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)"><i>side effect</i></a> in computer science. JAX
+does not care for these during JIT compilation, it only cares about
+math&nbsp;&#x2013; or, to be more exact, whatever comes in and what comes out
+of the function.</li>
+<li>The reason we do not get a second &ldquo;Hello!&rdquo; even though we apply
+<code>jax.jit</code> again (and we would expect the side effect to happen
+again before the function is compiled) is because JAX caches its
+compilation output in the background. So if we JIT the same
+function twice with the same arguments, the previous compilation
+output will be reused.</li>
+<li><p>
+JAX traces what happens inside the function on its first call,
+building a computational graph. This means, the first call of the
+function executes just like a standard Python function (though even
+slower due to the computational graph building).
+</p>
+
+<p>
+This also means that JITting functions that result in a large
+computational graph (for example a Python loop that is executed
+very many times) can take forever to JIT only because the first
+tracing of it takes so long. When you encounter this issue, you can
+replace your loop with control flow substitutes from the <code>jax.lax</code>
+module.
+</p></li>
+</ol>
+</div>
+</div>
+
+<div id="outline-container-JITting-State" class="outline-5">
+<h5 id="JITting-State"><a href="#JITting-State">JITting State</a></h5>
+<div class="outline-text-5" id="text-JITting-State">
+<p>
+Here, we&rsquo;ll see that <code>jax.jit</code> can also be used as a decorator.
+However, because we need to supply another argument to <code>jax.jit</code>, we
+cannot use it as a decorator that simply. Instead, we need to combine
+it with the <a href="https://docs.python.org/3/library/functools.html#functools.partial"><code>functools.partial</code></a> operator. An explanation follows after
+the code block.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">class</span> <span style="color: #b58900;">Counter</span>:
+    count = 0
+
+    <span style="color: #b58900;">@functools.partial</span>(jax.jit, static_argnums=(0,))
+    <span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">inc</span>(<span style="color: #859900; font-weight: bold;">self</span>):
+        <span style="color: #859900; font-weight: bold;">self</span>.count += 1
+
+a = Counter()
+<span style="color: #657b83; font-weight: bold;">print</span>(a.count)
+a.inc()
+<span style="color: #657b83; font-weight: bold;">print</span>(a.count)
+a.inc()
+<span style="color: #657b83; font-weight: bold;">print</span>(a.count)
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Applying <code>functools.partial</code> like this results in the following
+(actually anonymous) function:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Result of `functools.partial(jax.jit, static_argnums=(0,))`.</span>
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">partial_jit</span>(*args, **kwargs):
+    <span style="color: #859900; font-weight: bold;">return</span> jax.jit(*args, static_argnums=(0,), **kwargs)
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+This new <code>partial_jit</code> function wraps the <code>inc</code> method of <code>Counter</code>,
+resulting in the equivalent of the following:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">class</span> <span style="color: #b58900;">Counter</span>:
+    count = 0
+
+    <span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">inc</span>(<span style="color: #859900; font-weight: bold;">self</span>): <span style="color: #859900; font-weight: bold;">self</span>.<span style="color: #268bd2;">count</span> += 1
+
+Counter.<span style="color: #268bd2;">inc</span> = jax.jit(Counter.inc, static_argnums=(0,))
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left">&#xa0;</td>
+</tr>
+</tbody>
+</table>
+
+<hr>
+
+<p>
+I hope that helped make sense of the code. <code>static_argnums</code> basically
+tells <code>jax.jit</code> to recompile the JITted function for a different
+argument at that place. In return, we get some freedoms (for example,
+we would not be able to JIT the function otherwise). We call the
+arguments at the positions designated by <code>static_argnums</code> <i>static</i>
+from now on. More on static and non-static arguments later.
+</p>
+</div>
+</div>
+
+<div id="outline-container-JITting-State-Again" class="outline-5">
+<h5 id="JITting-State-Again"><a href="#JITting-State-Again">JITting State Again</a></h5>
+<div class="outline-text-5" id="text-JITting-State-Again">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">a</span> = Counter()
+<span style="color: #657b83; font-weight: bold;">print</span>(a.count)
+a.inc()
+<span style="color: #657b83; font-weight: bold;">print</span>(a.count)
+a.inc()
+<span style="color: #657b83; font-weight: bold;">print</span>(a.count)
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">0</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+</tr>
+
+<tr>
+<td class="org-right">1</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Due to <code>self</code> being a static argument as specified via
+<code>static_argnums</code>, the function is recompiled for a new, different
+<code>self</code><sup><a id="fnr.4" class="footref" href="#fn.4" role="doc-backlink">4</a></sup>.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-Benchmarking-~jit~-on-~randn~" class="outline-4">
+<h4 id="Benchmarking-~jit~-on-~randn~"><a href="#Benchmarking-~jit~-on-~randn~">Benchmarking <code>jit</code> on <code>randn</code></a></h4>
+<div class="outline-text-4" id="text-Benchmarking-~jit~-on-~randn~">
+</div>
+<div id="outline-container-JITting-our-~randn~" class="outline-5">
+<h5 id="JITting-our-~randn~"><a href="#JITting-our-~randn~">JITting our <code>randn</code></a></h5>
+<div class="outline-text-5" id="text-JITting-our-~randn~">
+<p>
+We&rsquo;ll now use Python&rsquo;s <a href="https://docs.python.org/3/library/timeit.html"><code>timeit</code></a> module to benchmark a JIT-compiled
+version of our old friend <code>randn</code> (remember <a href="#randn">we implemented this in the
+section on RNG in JAX</a>). We implement a simple wrapper around it in
+order to initialize the JIT-compiled function before we benchmark it.
+</p>
+
+<p>
+You will notice some <code>block_until_ready</code> calls. These are due to JAX&rsquo;
+asynchronous execution engine. Whenever JAX executes code on a
+non-host device (such as a GPU), it happens asynchronously. This means
+that the main thread of the program continues to run ahead with a
+&ldquo;mock&rdquo; result, also called a &ldquo;future&rdquo;, while the actual result is
+computed in the background. Only when we actually query the result
+will we wait until it&rsquo;s available.
+</p>
+
+<p>
+During benchmarking, we would get these futures immediately&nbsp;&#x2013; that&rsquo;s
+not much use to us. So we call the <code>block_until_ready</code> function in
+order to wait until the result of the computation is actually
+available. You achieve the same in PyTorch using a call to
+<code>torch.cuda.synchronize</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org7682ac9"><span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">time_str</span>(code, number=5000):
+    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Initialize cache</span>
+    <span style="color: #657b83; font-weight: bold;">exec</span>(code)
+    <span style="color: #859900; font-weight: bold;">return</span> timeit.timeit(code, <span style="color: #657b83; font-weight: bold;">globals</span>=<span style="color: #657b83; font-weight: bold;">globals</span>(), number=number)
+
+randn_time = time_str(
+    <span style="color: #2aa198;">'randn(rng_key, (100, 100))[1].block_until_ready()'</span>)
+jit_randn = jax.jit(randn, static_argnums=(1, 2))
+jit_randn_time = time_str(
+    <span style="color: #2aa198;">'jit_randn(rng_key, (100, 100))[1].block_until_ready()'</span>)
+[
+    [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'time [s]'</span>],
+    [<span style="color: #2aa198;">'randn'</span>, randn_time],
+    [<span style="color: #2aa198;">'jit_randn'</span>, jit_randn_time],
+]
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-JIT-Results" class="outline-5">
+<h5 id="JIT-Results"><a href="#JIT-Results">JIT Results</a></h5>
+<div class="outline-text-5" id="text-JIT-Results">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">function</th>
+<th scope="col" class="org-right">time [s]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>randn</code></td>
+<td class="org-right">1.0273832870007027</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>jit_randn</code></td>
+<td class="org-right">0.7757850260022678</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+A 25&nbsp;% reduction! Not bad at all, especially since we sholdn&rsquo;t
+really have much room to optimize here.
+</p>
+
+<p>
+Let&rsquo;s see how PyTorch does:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">torch_randn_time</span> = time_str(
+    <span style="color: #2aa198;">'torch.randn((100, 100), requires_grad=True); '</span>
+    <span style="color: #2aa198;">'torch.cuda.synchronize()'</span>
+)
+[[<span style="color: #2aa198;">'torch_randn'</span>, torch_randn_time]]
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left"><code>torch_randn</code></td>
+<td class="org-right">0.2515706809972471</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+We kept the playing field level, here: as JAX allows gradient
+computation by default, we enable the same for PyTorch. By the way, if
+you ever want to disable gradient computation, <a href="https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.stop_gradient.html">you can use
+<code>jax.lax.stop_gradient</code></a>. Its use is a bit unintuitive, so I&rsquo;d
+recommend checking out the link.
+</p>
+
+<p>
+Back to business: for some reason, PyTorch is quite a bit faster at
+generating random numbers (3 times as fast as JIT-compiled JAX!). I
+did not analyze this and can&rsquo;t say much more about this as there can
+be a myriad of reasons.
+</p>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-More-about-XLA" class="outline-3">
+<h3 id="More-about-XLA"><span class="section-number-3">6.2.</span> <a href="#More-about-XLA">More about XLA</a></h3>
+<div class="outline-text-3" id="text-6-2">
+</div>
+
+<div id="outline-container-About-XLA" class="outline-5">
+<h5 id="About-XLA"><a href="#About-XLA">About XLA</a></h5>
+<div class="outline-text-5" id="text-About-XLA">
+<ul class="org-ul">
+<li>Works via completely known shapes.</li>
+<li>Can&rsquo;t work dynamically with non-static values! That means (for
+<code>jax.jit</code>):
+<ul class="org-ul">
+<li><b>No</b> <code>if x &gt; 0</code>.</li>
+<li><b>No</b> <code>jnp.unique</code>.</li>
+<li><b>No</b> <code>y[y % 2 == 0]</code> or <code>y[:x]</code>.</li>
+<li>However, we can mark <code>x</code> (or what it depends on) as static.</li>
+<li>Alternatively, &ldquo;disable&rdquo; JIT in section via experimental
+<code>host_callback</code> module.</li>
+</ul></li>
+<li>Most important optimization: operator/kernel fusion.</li>
+<li>Best to apply at outer-most location only<sup><a id="fnr.5" class="footref" href="#fn.5" role="doc-backlink">5</a></sup>.</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-When-XLA-Recompiles" class="outline-5">
+<h5 id="When-XLA-Recompiles"><a href="#When-XLA-Recompiles">When XLA Recompiles</a></h5>
+<div class="outline-text-5" id="text-When-XLA-Recompiles">
+<p>
+Function is recompiled for&#x2026;
+</p>
+<ul class="org-ul">
+<li>different static argument values,</li>
+<li>different argument <i>shapes</i>, and</li>
+<li>different argument <i>dtypes</i>.</li>
+</ul>
+
+<p>
+When you hit performance issues, constant recompilation may be the
+problem!
+</p>
+</div>
+</div>
+
+<div id="outline-container-When-XLA-Recompiles-%28in-Text%29" class="outline-5">
+<h5 id="When-XLA-Recompiles-%28in-Text%29"><a href="#When-XLA-Recompiles-%28in-Text%29">When XLA Recompiles (in Text)</a></h5>
+<div class="outline-text-5" id="text-When-XLA-Recompiles-%28in-Text%29">
+<p>
+Imagine a dictionary (hash map) <code>compcache</code> and a function with arguments
+<code>args</code>:
+</p>
+<ul class="org-ul">
+<li>For each argument <code>x</code> in <code>args</code>, collect the following in
+<code>cache_key</code>:
+<ul class="org-ul">
+<li>if it&rsquo;s static, <code>x</code> (identity).</li>
+<li>if it&rsquo;s not static, <code>(x.shape, x.dtype)</code>,</li>
+</ul></li>
+</ul>
+
+<p>
+<code>compcache</code> maps from key <code>cache_key</code> to JIT-output (value). Recompile
+and insert if <code>compcache</code> does not contain <code>cache_key</code>.
+</p>
+
+<p>
+Any static <code>x</code> not hashable? Bzzzt, error!
+</p>
+</div>
+</div>
+
+<div id="outline-container-When-XLA-Recompiles-%28in-Code%29" class="outline-5">
+<h5 id="When-XLA-Recompiles-%28in-Code%29"><a href="#When-XLA-Recompiles-%28in-Code%29">When XLA Recompiles (in Code)</a></h5>
+<div class="outline-text-5" id="text-When-XLA-Recompiles-%28in-Code%29">
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">compcache</span> = {}
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">maybe_compile</span>(compcache, func, args):
+    <span style="color: #268bd2;">cache_key</span> = []
+    <span style="color: #859900; font-weight: bold;">for</span> x <span style="color: #859900; font-weight: bold;">in</span> <span style="color: #268bd2;">args</span>:
+        <span style="color: #859900; font-weight: bold;">if</span> is_static_arg(x):
+            <span style="color: #859900; font-weight: bold;">assert</span> <span style="color: #657b83; font-weight: bold;">isinstance</span>(x, collections.abc.Hashable)
+            cache_key.append(x)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Identity</span>
+        <span style="color: #859900; font-weight: bold;">else</span>:
+            <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Imagine this works on Python primitives.</span>
+            cache_key.append((x.shape, x.dtype))
+
+    <span style="color: #859900; font-weight: bold;">try</span>:
+        <span style="color: #859900; font-weight: bold;">return</span> compcache[cache_key]
+    <span style="color: #859900; font-weight: bold;">except</span> <span style="color: #b58900;">KeyError</span>:
+        jit_output = xla_compile(func)
+        <span style="color: #268bd2;">compcache</span>[<span style="color: #268bd2;">cache_key</span>] = jit_output
+        <span style="color: #859900; font-weight: bold;">return</span> jit_output
+</pre>
+</div>
+
+<p>
+Just an intuitive example! For example, fails with arbitrarily ordered
+keyword arguments; <code>cache_key</code> should be a <code>dict</code>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-JIT-and-C%2B%2B" class="outline-5">
+<h5 id="JIT-and-C%2B%2B"><a href="#JIT-and-C%2B%2B">JIT and C++</a></h5>
+<div class="outline-text-5" id="text-JIT-and-C%2B%2B">
+<ul class="org-ul">
+<li>Possible to run JIT-compiled functions from C++ via XLA
+runtime<sup><a id="fnr.6" class="footref" href="#fn.6" role="doc-backlink">6</a></sup> and <a href="https://github.com/google/jax/blob/9acb7891acda6a8ec12ac0b27d5cf8538eedd958/jax/tools/jax_to_hlo.py"><code>jax_to_hlo</code></a> utility.</li>
+<li>Intermediate representation (IR) output from <code>jax.jit</code> will be
+JIT-compiled in C++ program.</li>
+<li>However, a bit involved.</li>
+<li><a href="https://github.com/google/jax/blob/9acb7891acda6a8ec12ac0b27d5cf8538eedd958/examples/jax_cpp/main.cc">Example in JAX repository.</a></li>
+</ul>
+</div>
+</div>
+</div>
+
+<div id="outline-container-LLVM-is-Smart...-And-XLA%3F" class="outline-3">
+<h3 id="LLVM-is-Smart...-And-XLA%3F"><span class="section-number-3">6.3.</span> <a href="#LLVM-is-Smart...-And-XLA%3F">LLVM is Smart&#x2026; And XLA?</a></h3>
+<div class="outline-text-3" id="text-6-3">
+<p>
+In this section, I&rsquo;d like to show you a clever optimization compilers
+do for you.
+</p>
+
+<p>
+We&rsquo;ll take a look at a simple sum implementation in C and the code
+generated from it. We will compare that with several implementations
+in Python, compiling the JAX version and seeing why (spoiler alert)
+XLA does not match up in terms of performance, even though it also
+uses <a href="https://llvm.org">LLVM</a> for compilation.
+</p>
+</div>
+
+<div id="outline-container-Scalar-Evolution-with-Clang" class="outline-4">
+<h4 id="Scalar-Evolution-with-Clang"><a href="#Scalar-Evolution-with-Clang">Scalar Evolution with Clang</a></h4>
+<div class="outline-text-4" id="text-Scalar-Evolution-with-Clang">
+</div>
+<div id="outline-container-Giant%27s-Shoulders" class="outline-5">
+<h5 id="Giant%27s-Shoulders"><a href="#Giant%27s-Shoulders">Giant&rsquo;s Shoulders</a></h5>
+<div class="outline-text-5" id="text-Giant%27s-Shoulders">
+<div class="org-src-container">
+<pre class="src src-C"><span style="color: #268bd2;">#include</span> <span style="color: #2aa198;">&lt;stdio.h&gt;</span>
+
+<span style="color: #b58900;">int</span> <span style="color: #268bd2;">sum</span>(<span style="color: #b58900;">int</span> <span style="color: #268bd2;">limit</span>)
+{
+    <span style="color: #b58900;">int</span> <span style="color: #268bd2;">i</span>, <span style="color: #268bd2;">total</span>;
+
+    total = 0;
+    <span style="color: #859900; font-weight: bold;">for</span> (i = 0; i &lt; limit; ++i) {
+        total += i;
+    }
+    <span style="color: #859900; font-weight: bold;">return</span> total;
+}
+
+<span style="color: #b58900;">int</span> <span style="color: #268bd2;">main</span>(<span style="color: #b58900;">int</span> <span style="color: #268bd2;">argc</span>, <span style="color: #b58900;">char</span>** <span style="color: #268bd2;">argnv</span>)
+{
+    printf(<span style="color: #2aa198;">"%d\n"</span>, sum(<span style="font-weight: bold; text-decoration: underline;">50</span>000));
+    <span style="color: #859900; font-weight: bold;">return</span> 0;
+}
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">1249975000</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+If you&rsquo;re following along, save the above to a file called <code>sum.c</code>.
+</p>
+
+<p>
+This is the simplest sum function we can implement. Let&rsquo;s see what a
+modern C compiler does to this code: by outputting LLVM&rsquo;s lower-level
+representation.
+</p>
+</div>
+</div>
+
+<div id="outline-container-Outputting-LLVM-IR" class="outline-5">
+<h5 id="Outputting-LLVM-IR"><a href="#Outputting-LLVM-IR">Outputting LLVM IR</a></h5>
+<div class="outline-text-5" id="text-Outputting-LLVM-IR">
+<p>
+Intermediate representation (IR) is a lower-level (in this case
+assembly-like) representation of the program. The compiler backend
+<a href="https://llvm.org">LLVM</a> uses this IR to achieve portability across assembly languages.
+</p>
+
+<p>
+Don&rsquo;t worry too much about the <code>vim</code> call below&nbsp;&#x2013; we are simply
+filtering the LLVM IR output so it only shows the definition of the
+<code>sum</code> function. The <code>sed</code> call strips trailing spaces.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell" id="org1b0bbbe">clang -S -emit-llvm sum.c -O1
+cat sum.ll <span style="color: #b58900; font-weight: bold;">\</span>
+    | vim - +<span style="color: #2aa198;">'/^define.*sum(.*{$/,/^}$/p'</span> <span style="color: #b58900; font-weight: bold;">\</span>
+          -es --not-a-term <span style="color: #b58900; font-weight: bold;">\</span>
+    | sed <span style="color: #2aa198;">'s/ *$//'</span>
+</pre>
+</div>
+
+<p>
+<a href="https://clang.llvm.org">Clang</a> is the official C frontend<sup><a id="fnr.7" class="footref" href="#fn.7" role="doc-backlink">7</a></sup> of the LLVM project.
+</p>
+</div>
+</div>
+
+<div id="outline-container-LLVM-Scalar-Evolution" class="outline-5">
+<h5 id="LLVM-Scalar-Evolution"><a href="#LLVM-Scalar-Evolution">LLVM Scalar Evolution</a></h5>
+<div class="outline-text-5" id="text-LLVM-Scalar-Evolution">
+<p>
+Warning: assembly-like language below! Don&rsquo;t worry about reading this,
+I&rsquo;ll give the gist of it below.
+</p>
+
+<p>
+So, without focusing too much on the details and interpreting this
+intuitively: please believe me that LLVM converted our <code>sum</code> function
+that used a <code>for</code>-loop into&#x2026; the closed-form <code>sum</code> formula \( n
+\cdot (n - 1) / 2 \) (minus instead of plus due to the limit being
+excluded)! Isn&rsquo;t that amazing?
+</p>
+
+<p>
+This form of optimization is called <i>scalar evolution</i> and is an
+induction-based technique for&nbsp;&#x2013; as you can see&nbsp;&#x2013; quite
+substantial performance improvements. If you became interested in this
+topic, in the next section follows the link to the source code which
+includes references to the papers it implements.
+</p>
+
+<p>
+If you really wanted to make sure the optimization happens on the
+machine code level, you can compile the code to an object file and
+disassemble it using for example the <a href="https://radare.org"><code>radare2</code></a> program.
+</p>
+</div>
+</div>
+
+<div id="outline-container-More-on-Scalar-Evolution" class="outline-5">
+<h5 id="More-on-Scalar-Evolution"><a href="#More-on-Scalar-Evolution">More on Scalar Evolution</a></h5>
+<div class="outline-text-5" id="text-More-on-Scalar-Evolution">
+<p>
+<a href="https://github.com/llvm/llvm-project/blob/6ca8fde226e907db13bc538e721af8724f0e92d0/llvm/lib/Analysis/ScalarEvolution.cpp">LLVM scalar evolution analysis (SCEV) source code</a> with links to
+papers.
+</p>
+
+<p>
+Weirdly enough, sums with a step other than 1 are not optimized even
+though a closed-form solution exists&#x2026;
+</p>
+
+<p>
+To explain a bit more, an earlier version had an <code>int sum(int limit,
+int step)</code> function that allowed a varying step size. However, LLVM
+did not optimize this function to the closed-form solution, even
+though it really should be able to (from what I could see in the
+comments of the scalar evolution source code).
+</p>
+</div>
+</div>
+
+<div id="outline-container-Benchmarking-C-Sum" class="outline-5">
+<h5 id="Benchmarking-C-Sum"><a href="#Benchmarking-C-Sum">Benchmarking C Sum</a></h5>
+<div class="outline-text-5" id="text-Benchmarking-C-Sum">
+<p>
+This section is about obtaining a C timing for the <code>sum</code> function and
+<a href="#clang-vs-xla">can safely be skipped</a>.
+</p>
+
+<p>
+In order to get some timings for C, which does not include a nice
+<code>timeit</code> module, what follows is a benchmark program for the above
+<code>sum</code> function allowing various timing methods. The idea is to mimic
+<code>timeit</code> with this. I saved this to a file called <code>benchmark_sum.c</code>.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-C"><span style="color: #268bd2;">#include</span> <span style="color: #2aa198;">&lt;stdio.h&gt;</span>
+<span style="color: #268bd2;">#include</span> <span style="color: #2aa198;">&lt;time.h&gt;</span>
+
+<span style="color: #93a1a1;">// </span><span style="color: #93a1a1;">The CPU cycle-based timings suffer from poor resolution compared to</span>
+<span style="color: #93a1a1;">// </span><span style="color: #93a1a1;">wall-time measurements.</span>
+<span style="color: #268bd2;">#define</span> <span style="color: #268bd2;">MY_CLOCK</span> 0
+<span style="color: #268bd2;">#define</span> <span style="color: #268bd2;">MY_CLOCK_GETTIME</span> 1
+<span style="color: #268bd2;">#define</span> <span style="color: #268bd2;">MY_CLOCK_GETTIME_WALL</span> 2
+<span style="color: #268bd2;">#define</span> <span style="color: #268bd2;">MY_TIME</span> 3
+
+<span style="color: #268bd2;">#define</span> <span style="color: #268bd2;">MY_CLOCK_FUN</span> MY_CLOCK_GETTIME_WALL
+
+<span style="color: #b58900;">int</span> <span style="color: #268bd2;">sum</span>(<span style="color: #b58900;">int</span> <span style="color: #268bd2;">limit</span>)
+{
+    <span style="color: #b58900;">int</span> <span style="color: #268bd2;">i</span>, <span style="color: #268bd2;">total</span>;
+
+    total = 0;
+    <span style="color: #859900; font-weight: bold;">for</span> (i = 0; i &lt; limit; ++i) {
+        total += i;
+    }
+    <span style="color: #859900; font-weight: bold;">return</span> total;
+}
+
+<span style="color: #b58900;">int</span> <span style="color: #268bd2;">main</span>(<span style="color: #b58900;">int</span> <span style="color: #268bd2;">args</span>, <span style="color: #b58900;">char</span>** <span style="color: #268bd2;">argv</span>)
+{
+    <span style="color: #b58900;">double</span> <span style="color: #268bd2;">duration</span>;
+    <span style="color: #b58900;">int</span> <span style="color: #268bd2;">res</span>;
+<span style="color: #268bd2;">#if</span> MY_CLOCK_FUN == MY_CLOCK
+    <span style="color: #b58900;">clock_t</span> <span style="color: #268bd2;">start_time</span>, <span style="color: #268bd2;">end_time</span>;
+
+    start_time = clock();
+<span style="color: #268bd2;">#elseif</span> MY_CLOCK_FUN == MY_CLOCK_GETTIME
+    <span style="color: #859900; font-weight: bold;">struct</span> <span style="color: #b58900;">timespec</span> <span style="color: #268bd2;">start_time</span>, <span style="color: #268bd2;">end_time</span>;
+
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &amp;start_time);
+<span style="color: #268bd2;">#elseif</span> MY_CLOCK_FUN == MY_CLOCK_GETTIME_WALL
+    <span style="color: #859900; font-weight: bold;">struct</span> <span style="color: #b58900;">timespec</span> <span style="color: #268bd2;">start_time</span>, <span style="color: #268bd2;">end_time</span>;
+
+    clock_gettime(CLOCK_MONOTONIC, &amp;start_time);
+<span style="color: #268bd2;">#elseif</span> MY_CLOCK_FUN == MY_TIME
+    <span style="color: #b58900;">time_t</span> <span style="color: #268bd2;">start_time</span>, <span style="color: #268bd2;">end_time</span>;
+<span style="color: #268bd2;">#endif</span>
+
+    res = sum(<span style="font-weight: bold; text-decoration: underline;">50</span>000);
+
+<span style="color: #268bd2;">#if</span> MY_CLOCK_FUN == MY_CLOCK
+    end_time = clock();
+    duration = (<span style="color: #b58900;">double</span>) (end_time - start_time) / CLOCKS_PER_SEC;
+<span style="color: #268bd2;">#elseif</span> MY_CLOCK_FUN == MY_CLOCK_GETTIME
+    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &amp;end_time);
+    duration = (
+        end_time.tv_sec + 1e-9 * end_time.tv_nsec
+        - start_time.tv_sec - 1e-9 * start_time.tv_nsec
+        );
+<span style="color: #268bd2;">#elseif</span> MY_CLOCK_FUN == MY_CLOCK_GETTIME_WALL
+    clock_gettime(CLOCK_MONOTONIC, &amp;end_time);
+    duration = (
+        end_time.tv_sec + 1e-9 * end_time.tv_nsec
+        - start_time.tv_sec - 1e-9 * start_time.tv_nsec
+        );
+<span style="color: #268bd2;">#elseif</span> MY_CLOCK_FUN == MY_TIME
+    end_time = time();
+    duration = difftime(end_time, start_time);
+<span style="color: #268bd2;">#endif</span>
+
+    <span style="color: #93a1a1;">// </span><span style="color: #93a1a1;">Use `res` so the `sum` call is not optimized away.</span>
+    printf(<span style="color: #2aa198;">"sum %d\n"</span>, res);
+    printf(<span style="color: #2aa198;">"dur %.17g\n"</span>, duration);
+    <span style="color: #859900; font-weight: bold;">return</span> 0;
+}
+</pre>
+</div>
+
+<p>
+Check that we get the sum formula optimization we want. I also
+manually checked to make sure that <code>main</code> does not optimize away the
+<code>sum</code> call.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">clang -S -emit-llvm benchmark_sum.c -O1
+cat benchmark_sum.ll <span style="color: #b58900; font-weight: bold;">\</span>
+    | vim - +<span style="color: #2aa198;">'/^define.*sum(.*{$/,/^}$/p'</span> <span style="color: #b58900; font-weight: bold;">\</span>
+          -es --not-a-term <span style="color: #b58900; font-weight: bold;">\</span>
+    | sed <span style="color: #2aa198;">'s/ *$//'</span>
+</pre>
+</div>
+
+<p>
+Execute the same number of times as we do with <code>time_str</code> and add up
+the timings.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-shell">clang -o benchmark_sum.o benchmark_sum.c -O1
+./benchmark_sum.o
+seq 5000 <span style="color: #b58900; font-weight: bold;">\</span>
+    | xargs -n 1 ./benchmark_sum.o <span style="color: #b58900; font-weight: bold;">\</span>
+    | awk <span style="color: #2aa198;">'/dur/ {total+=$2} END {print total}'</span>
+</pre>
+</div>
+
+<p>
+I copy-pasted this number at a later location so that I was able to
+give a live surprise.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-clang-vs-xla" class="outline-4">
+<h4 id="clang-vs-xla"><a href="#clang-vs-xla">Clang/Math vs. XLA</a></h4>
+<div class="outline-text-4" id="text-clang-vs-xla">
+</div>
+
+<div id="outline-container-How-does-XLA-%2Bstack%2B-sum-up%3F" class="outline-5">
+<h5 id="How-does-XLA-%2Bstack%2B-sum-up%3F"><a href="#How-does-XLA-%2Bstack%2B-sum-up%3F">How does XLA <del>stack</del> sum up?</a></h5>
+<div class="outline-text-5" id="text-How-does-XLA-%2Bstack%2B-sum-up%3F">
+<p>
+Back to Python, let&rsquo;s see whether XLA timings match Clang. Also, let&rsquo;s
+acknowledge Python&rsquo;s miserable performance.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org8d4d2a1"><span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">py_sum_up</span>(limit):
+    <span style="color: #859900; font-weight: bold;">return</span> <span style="color: #657b83; font-weight: bold;">sum</span>(<span style="color: #657b83; font-weight: bold;">range</span>(limit))
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">jax_sum_up</span>(limit):
+    <span style="color: #859900; font-weight: bold;">return</span> jnp.<span style="color: #657b83; font-weight: bold;">sum</span>(jnp.arange(limit))
+
+<span style="color: #268bd2;">limit</span> = <span style="font-weight: bold; text-decoration: underline;">50</span>000
+
+<span style="color: #268bd2;">python_time</span> = time_str(<span style="color: #2aa198;">'py_sum_up(limit)'</span>)
+<span style="color: #268bd2;">jax_time</span> = time_str(<span style="color: #2aa198;">'jax_sum_up(limit).block_until_ready()'</span>)
+<span style="color: #268bd2;">jit_sum_up</span> = jax.jit(jax_sum_up, static_argnums=(0,))
+jax_jit_time = time_str(<span style="color: #2aa198;">'jit_sum_up(limit).block_until_ready()'</span>)
+[
+    [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'time [s]'</span>, <span style="color: #2aa198;">'result'</span>],
+    [<span style="color: #2aa198;">'py_sum_up'</span>, python_time, py_sum_up(limit)],
+    [<span style="color: #2aa198;">'jax_sum_up'</span>, jax_time, jax_sum_up(limit).item()],
+    [<span style="color: #2aa198;">'jit_sum_up'</span>, jax_jit_time, jit_sum_up(limit).item()],
+]
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-Sum-Timings" class="outline-5">
+<h5 id="Sum-Timings"><a href="#Sum-Timings">Sum Timings</a></h5>
+<div class="outline-text-5" id="text-Sum-Timings">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">function</th>
+<th scope="col" class="org-right">time [s]</th>
+<th scope="col" class="org-right">result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>py_sum_up</code></td>
+<td class="org-right">3.0464433249981084</td>
+<td class="org-right">1249975000</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>jax_sum_up</code></td>
+<td class="org-right">0.44727893300296273</td>
+<td class="org-right">1249975000</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>jit_sum_up</code></td>
+<td class="org-right">0.1480330039994442</td>
+<td class="org-right">1249975000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-JIT-vs.-Math" class="outline-5">
+<h5 id="JIT-vs.-Math"><a href="#JIT-vs.-Math">JIT vs. Math</a></h5>
+<div class="outline-text-5" id="text-JIT-vs.-Math">
+<p>
+Here, we manually implement the sum formula optimization. To get a
+better idea how fast <code>jit_sum_up</code> <i>should</i> be in the best case.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org0c13a49"><span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">sum_up_const</span>(limit):
+    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Since we exclude the limit, subtract one instead of adding.</span>
+    <span style="color: #859900; font-weight: bold;">return</span> limit * (limit - 1) // 2
+
+[
+    [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'time [s]'</span>, <span style="color: #2aa198;">'result'</span>, <span style="color: #2aa198;">'gradient'</span>],
+    [
+        <span style="color: #2aa198;">'jit_sum_up'</span>,
+        jax_jit_time,
+        jit_sum_up(limit).item(),
+        jax.grad(jax_sum_up, argnums=0)(<span style="color: #657b83; font-weight: bold;">float</span>(limit)).item(),
+    ],
+    [
+        <span style="color: #2aa198;">'sum_up_const'</span>,
+        time_str(<span style="color: #2aa198;">'sum_up_const(limit)'</span>),
+        sum_up_const(limit),
+        jax.grad(sum_up_const, argnums=0)(<span style="color: #657b83; font-weight: bold;">float</span>(limit)).item(),
+    ],
+]
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-JIT-vs.-Math-Results" class="outline-5">
+<h5 id="JIT-vs.-Math-Results"><a href="#JIT-vs.-Math-Results">JIT vs. Math Results</a></h5>
+<div class="outline-text-5" id="text-JIT-vs.-Math-Results">
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">function</th>
+<th scope="col" class="org-right">time [s]</th>
+<th scope="col" class="org-right">result</th>
+<th scope="col" class="org-right">gradient</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>jit_sum_up</code></td>
+<td class="org-right">0.1480330039994442</td>
+<td class="org-right">1249975000</td>
+<td class="org-right">0.0</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>sum_up_const</code></td>
+<td class="org-right">0.0008629900003143121</td>
+<td class="org-right">1249975000</td>
+<td class="org-right">0.0</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Reason? <a href="https://github.com/tensorflow/tensorflow/blob/40670552faa92fb353bd0e4e5efed26979f239c5/tensorflow/compiler/xla/service/cpu/compiler_functor.cc#L50-L60">The optimization is too slow to apply and was disabled</a> (but
+only on the CPU)!<sup><a id="fnr.8" class="footref" href="#fn.8" role="doc-backlink">8</a></sup>
+</p>
+
+<p>
+C with <code>-O1</code> takes around 5e-126 seconds.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-Even-More-on-JIT-and-Math" class="outline-4">
+<h4 id="Even-More-on-JIT-and-Math"><a href="#Even-More-on-JIT-and-Math">Even More on JIT and Math</a></h4>
+<div class="outline-text-4" id="text-Even-More-on-JIT-and-Math">
+</div>
+<div id="outline-container-More-JIT-vs.-Math" class="outline-5">
+<h5 id="More-JIT-vs.-Math"><a href="#More-JIT-vs.-Math">More JIT vs. Math</a></h5>
+<div class="outline-text-5" id="text-More-JIT-vs.-Math">
+<p>
+Just for fun, we try the same in <a href="https://pytorch.org/docs/stable/jit.html">PyTorch, using its JIT</a>. We need to
+save the following code to a file <code>torch_sum.py</code> so PyTorch can parse
+the (TorchScript) source code.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">import</span> torch
+
+<span style="color: #657b83; font-weight: bold;">__all__</span> = [<span style="color: #2aa198;">'torch_sum_up'</span>, <span style="color: #2aa198;">'torch_jit_sum_up'</span>]
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">torch_sum_up</span>(limit):
+    <span style="color: #859900; font-weight: bold;">return</span> torch.<span style="color: #657b83; font-weight: bold;">sum</span>(torch.arange(limit))
+
+<span style="color: #268bd2;">torch_jit_sum_up</span> = torch.jit.script(torch_sum_up)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">from</span> torch_sum <span style="color: #859900; font-weight: bold;">import</span> *
+
+<span style="color: #268bd2;">torch_limit</span> = torch.tensor(limit)
+[
+    [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'time [s]'</span>, <span style="color: #2aa198;">'result'</span>],
+    [
+        <span style="color: #2aa198;">'torch_sum_up'</span>,
+        time_str(
+            <span style="color: #2aa198;">'torch_sum_up(torch_limit); '</span>
+            <span style="color: #2aa198;">'torch.cuda.synchronize()'</span>
+        ),
+        torch_sum_up(torch_limit).item(),
+    ],
+    [
+        <span style="color: #2aa198;">'torch_jit_sum_up'</span>,
+        time_str(
+            <span style="color: #2aa198;">'torch_jit_sum_up(torch_limit); '</span>
+            <span style="color: #2aa198;">'torch.cuda.synchronize()'</span>
+        ),
+        sum_up_const(torch_limit).item(),
+    ],
+]
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">function</th>
+<th scope="col" class="org-right">time [s]</th>
+<th scope="col" class="org-right">result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>torch_sum_up</code></td>
+<td class="org-right">0.15606207399832783</td>
+<td class="org-right">1249975000</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>torch_jit_sum_up</code></td>
+<td class="org-right">0.1805207170000358</td>
+<td class="org-right">1249975000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-XLA-Optimized-LLVM-IR" class="outline-5">
+<h5 id="XLA-Optimized-LLVM-IR"><a href="#XLA-Optimized-LLVM-IR">XLA-Optimized LLVM IR</a></h5>
+<div class="outline-text-5" id="text-XLA-Optimized-LLVM-IR">
+<p>
+If you&rsquo;ve been executing <code>jax.jit</code> code snippets, you can find XLA IR
+output in the <code>generated</code> directory (if you have set the <code>XLA_FLAGS</code>
+as in the <a href="#bts-setup">behind-the-scenes setup code block</a>).
+</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="outline-container-~vmap~%3A-No-Batching-Required" class="outline-2">
+<h2 id="~vmap~%3A-No-Batching-Required"><span class="section-number-2">7.</span> <a href="#~vmap~%3A-No-Batching-Required"><code>vmap</code>: No Batching Required</a></h2>
+<div class="outline-text-2" id="text-7">
+</div>
+<div id="outline-container-What-is-Batching" class="outline-5">
+<h5 id="What-is-Batching"><a href="#What-is-Batching">What is Batching</a></h5>
+<div class="outline-text-5" id="text-What-is-Batching">
+<p>
+If you don&rsquo;t know what <i>batching</i> is, here are some simple examples.
+First three non-batched versions, then a batched version. Whether
+you&rsquo;re using R, Octave/MATLAB, NumPy, or PyTorch, you <b>always</b> want to
+batch your calculations for optimum performance. Especially when you
+are interested in taking gradients, batching greatly simplifies the
+computational graph.
+</p>
+
+<p>
+For the setting, assume we have a small set of 15 3-dimensional edges
+and we want to sum up their norms because we need it for some computer
+graphics algorithm.
+</p>
+
+<p>
+Non-batched:
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">rng_key</span>, <span style="color: #268bd2;">edges</span> = randn(rng_key, (15, 3))
+
+<span style="color: #268bd2;">norm_sum</span> = 0
+<span style="color: #859900; font-weight: bold;">for</span> edge <span style="color: #859900; font-weight: bold;">in</span> <span style="color: #268bd2;">edges</span>:
+    norm_sum += jnp.linalg.norm(edge)
+norm_sum
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">27.265522</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+Now, we can write this in a more pythonic way by using the built-in
+<code>sum</code> function. However, we are still not batching.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #657b83; font-weight: bold;">sum</span>(jnp.linalg.norm(edge) <span style="color: #859900; font-weight: bold;">for</span> edge <span style="color: #859900; font-weight: bold;">in</span> edges)
+</pre>
+</div>
+
+<p>
+The following is a more NumPy-like way to write the non-batched
+version. It may even be faster than the pythonic version due to being
+able to use <a href="https://en.wikipedia.org/wiki/SIMD">SIMD operations</a>. Whether performance is gained or lost
+depends on the size of our dataset, though.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python">jnp.<span style="color: #657b83; font-weight: bold;">sum</span>(jnp.array([jnp.linalg.norm(edge) <span style="color: #859900; font-weight: bold;">for</span> edge <span style="color: #859900; font-weight: bold;">in</span> edges]))
+</pre>
+</div>
+
+<p>
+Finally, we arrive at the batched version. We avoid any and all Python
+loops, calculating our norm sum in a much more efficient manner.
+</p>
+
+<p>
+Batched:
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">norms</span> = jnp.linalg.norm(edges, axis=-1)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">shape: (15,)</span>
+norm_sum = jnp.<span style="color: #657b83; font-weight: bold;">sum</span>(norms)
+norm_sum
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-right">
+</colgroup>
+<tbody>
+<tr>
+<td class="org-right">27.265522</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-~vmap~%3A-No-Batching-Required-2" class="outline-5">
+<h5 id="~vmap~%3A-No-Batching-Required-2"><a href="#~vmap~%3A-No-Batching-Required-2"><code>vmap</code>: No Batching Required</a></h5>
+<div class="outline-text-5" id="text-~vmap~%3A-No-Batching-Required-2">
+<p>
+Now, what if I told you you no longer needed to do batching manually?
+Enter <code>jax.vmap</code>!
+</p>
+
+<p>
+The following example calculates the spectral radius on a 128-size
+batch of 3&times;3 matrices. With the <code>assert</code> statement, we make sure
+our old version <code>jax_spectral_radius</code> is not batched already.
+</p>
+
+<p>
+Notice also that you can combine <code>jax.jit</code> with <code>jax.vmap</code>&nbsp;&#x2013;
+quite the magic! I&rsquo;ll let the below timings speak for themselves.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">rng_key</span>, <span style="color: #268bd2;">batch</span> = jit_randn(rng_key, (128, 3, 3))
+
+<span style="color: #859900; font-weight: bold;">assert</span> jax_spectral_radius(batch).shape != (128,)
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">looped_spectral_radius</span>(batch):
+    <span style="color: #859900; font-weight: bold;">return</span> <span style="color: #657b83; font-weight: bold;">list</span>(<span style="color: #657b83; font-weight: bold;">map</span>(jax_spectral_radius, batch))
+
+<span style="color: #268bd2;">batched_spectral_radius</span> = jax.vmap(jax_spectral_radius)
+<span style="color: #268bd2;">jit_batched_spectral_radius</span> = jax.jit(batched_spectral_radius)
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">function</th>
+<th scope="col" class="org-right">time [s]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>looped</code></td>
+<td class="org-right">10.771453108998685</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>batched</code></td>
+<td class="org-right">3.7003866220002237</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>jit_batched</code></td>
+<td class="org-right">0.9432253269987996</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-More-Batching" class="outline-5">
+<h5 id="More-Batching"><a href="#More-Batching">More Batching</a></h5>
+<div class="outline-text-5" id="text-More-Batching">
+<p>
+Because we can&rsquo;t get enough of comparisons across frameworks, here are
+some more batched implementations.
+</p>
+
+<p>
+Since we are going to JIT-compile PyTorch&rsquo;s TorchScript again, you
+need to save the following code block to <code>torch_batching.py</code>.
+</p>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">function</th>
+<th scope="col" class="org-right">time [s]</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>np_batched</code></td>
+<td class="org-right">0.8191060569988622</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>jax_manually_batched</code></td>
+<td class="org-right">1.0442584550000902</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>jax_jit_manually_batched</code></td>
+<td class="org-right">0.8894995779992314</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>torch_batched</code></td>
+<td class="org-right">1.276841124999919</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>torch_jit_batched</code></td>
+<td class="org-right">1.373109233998548</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+When comparing these timings, keep two things in mind:
+</p>
+
+<ol class="org-ol">
+<li>We are not running on the GPU.</li>
+<li>NumPy does not let you differentiate its functions. Creating a
+computational graph in the background takes some time.</li>
+</ol>
+</div>
+</div>
+</section>
+
+<section id="outline-container-~pmap~%3A-Simple%2C-Differentiable-MPI" class="outline-2">
+<h2 id="~pmap~%3A-Simple%2C-Differentiable-MPI"><span class="section-number-2">8.</span> <a href="#~pmap~%3A-Simple%2C-Differentiable-MPI"><code>pmap</code>: Simple, Differentiable MPI</a></h2>
+<div class="outline-text-2" id="text-8">
+</div>
+<div id="outline-container-~pmap~" class="outline-5">
+<h5 id="~pmap~"><a href="#~pmap~"><code>pmap</code></a></h5>
+<div class="outline-text-5" id="text-~pmap~">
+<ul class="org-ul">
+<li>Simple function transformation for splitting a computation across
+devices.</li>
+<li>Certain <a href="https://jax.readthedocs.io/en/latest/jax.lax.html#parallel-operators"><code>jax.lax</code> primitives for reduction</a> (<code>pmean</code>, <code>psum</code>, &#x2026;).</li>
+<li>Like to stay old school? Differentiable <a href="https://github.com/mpi4jax/mpi4jax"><code>mpi4jax</code></a><sup><a id="fnr.9" class="footref" href="#fn.9" role="doc-backlink">9</a></sup>.</li>
+</ul>
+
+<p>
+To activate for local tests (adjust <code>num_devices</code> as desired):
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">import</span> multiprocessing
+<span style="color: #859900; font-weight: bold;">import</span> os
+
+<span style="color: #268bd2;">num_devices</span> = multiprocessing.cpu_count()
+os.<span style="color: #268bd2;">environ</span>[<span style="color: #2aa198;">'XLA_FLAGS'</span>] = (
+    os.getenv(<span style="color: #2aa198;">'XLA_FLAGS'</span>)
+    + <span style="color: #2aa198;">' --xla_force_host_platform_device_count='</span>
+    + <span style="color: #657b83; font-weight: bold;">str</span>(num_devices)
+)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-~pmap~-and-Axes" class="outline-5">
+<h5 id="~pmap~-and-Axes"><a href="#~pmap~-and-Axes"><code>pmap</code> and Axes</a></h5>
+<div class="outline-text-5" id="text-~pmap~-and-Axes">
+<ul class="org-ul">
+<li>Splits computation according to an axis; works over multiple devices
+and/or JAX processes.</li>
+<li>This broadcasting axis must be the size of our devices/processes, so
+reshape your data accordingly:
+<ul class="org-ul">
+<li>assuming 4 devices/processes and broadcasting axis 0, reshape
+dataset of shape <code>(128, 3, 3)</code> to <code>(4, 32, 3, 3)</code>.</li>
+<li><p>
+In code:
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">world_size</span> = jax.device_count()  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">or `jax.process_count()`</span>
+<span style="color: #268bd2;">dataset</span> = dataset.reshape(world_size, -1, dataset.shape[1:])
+</pre>
+</div></li>
+</ul></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-Write-your-own-Horovod%21" class="outline-3">
+<h3 id="Write-your-own-Horovod%21"><span class="section-number-3">8.1.</span> <a href="#Write-your-own-Horovod%21">Write your own Horovod!</a></h3>
+<div class="outline-text-3" id="text-8-1">
+<p>
+The following is a case study of using JAX to parallelize simple deep
+learning code.
+</p>
+
+<p>
+I referenced the parallel deep learning framework <a href="https://github.com/horovod/horovod">Horovod</a> because it
+seems to be the most-used tool at <a href="https://www.fz-juelich.de/ias/jsc/EN/Home/home_node.html">Jülich Supercomputing Centre</a> for
+model-parallel training.
+</p>
+
+<p>
+You can substitute &ldquo;Horovod&rdquo; with whatever you like to use, though; be
+it MPI, <a href="https://www.tensorflow.org/guide/distributed_training"><code>tf.distribute.Strategy</code></a>, <a href="https://pytorch.org/docs/stable/distributed.html"><code>torch.distributed</code></a>,
+<code>torch.distributed</code> with <a href="https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html"><code>torch.nn.parallel.DistributedDataParallel</code></a>
+(DDP), or whatever else you know and love. The principles are all the
+same, although our JAX implementation is more similar to Horovd than
+PyTorch DDP, for example (due to global instead of node-local
+splitting of the batch).
+</p>
+</div>
+
+<div id="outline-container-Non-Distributed-Setup" class="outline-4">
+<h4 id="Non-Distributed-Setup"><a href="#Non-Distributed-Setup">Non-Distributed Setup</a></h4>
+<div class="outline-text-4" id="text-Non-Distributed-Setup">
+</div>
+<div id="outline-container-Training-Code" class="outline-5">
+<h5 id="Training-Code"><a href="#Training-Code">Training Code</a></h5>
+<div class="outline-text-5" id="text-Training-Code">
+<p>
+What follows is some boilerplate setup code for deep learning using
+JAX&rsquo; built-in example machine learning libraries
+<code>jax.example_libraries.stax</code> and <code>jax.example_libraries.optimizers</code>.
+Notice how all state is explicitly handled with these. If you don&rsquo;t
+care for this, you can <a href="#interesting-training-code">skip straight to the interesting part</a>.
+</p>
+
+<p>
+I also quickly want to mention why the code is a bit larger than it
+could be: I like my model to be able to work with dynamic batch sizes;
+however, if you follow JAX&rsquo; official example, it would seem that the
+batch size needs to be fixed. By implementing two little extras, we
+are able to handle arbitrary batch sizes. First, we implement our own
+small <code>flatten</code> function/layer that flattens the whole input (unlike
+<code>stax.Flatten</code>). Second, we apply <code>jax.vmap</code> to our <code>model</code> function.
+The <code>model</code> function is always passed the model&rsquo;s parameters as well,
+that is why we do not want to <code>vmap</code> over the first argument
+(indicated by <code>in_axes=(None, [...])</code>). And that&rsquo;s it!
+</p>
+
+<p>
+The only slight inconvenience with this setup is that we need to add
+an extra size-1 batch dimension in order to handle singular inputs.
+You&rsquo;ll see this when we test our model later.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org6a65f44"><span style="color: #859900; font-weight: bold;">from</span> jax.example_libraries <span style="color: #859900; font-weight: bold;">import</span> stax
+<span style="color: #859900; font-weight: bold;">from</span> jax.example_libraries <span style="color: #859900; font-weight: bold;">import</span> optimizers
+
+<span style="color: #268bd2;">input_shape</span> = (2, 2)
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">flatten</span>():
+    <span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">init_fun</span>(rng_key, input_shape):
+        <span style="color: #268bd2;">flattened_size</span> = jnp.prod(jnp.array(<span style="color: #657b83; font-weight: bold;">list</span>(input_shape)))
+        <span style="color: #859900; font-weight: bold;">return</span> (flattened_size,), ()
+
+    <span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">apply_fun</span>(params, inputs, **kwargs):
+        <span style="color: #859900; font-weight: bold;">return</span> inputs.ravel()
+
+    <span style="color: #859900; font-weight: bold;">return</span> init_fun, apply_fun
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">build_model</span>(rng_key):
+    <span style="color: #268bd2;">model_init</span>, <span style="color: #268bd2;">model</span> = stax.serial(
+        flatten(),
+        stax.Dense(64),
+        stax.Relu,
+        stax.Dense(64),
+        stax.Relu,
+        stax.Dense(64),
+        stax.Relu,
+        stax.Dense(1),
+    )
+    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Handle varying batch sizes.</span>
+    <span style="color: #268bd2;">model</span> = jax.vmap(model, in_axes=(<span style="color: #268bd2; font-weight: bold;">None</span>, 0))
+
+    rng_key, subkey = jax.random.split(rng_key)
+    output_shape, params = model_init(subkey, input_shape)
+
+    <span style="color: #859900; font-weight: bold;">assert</span> output_shape == (1,)
+    <span style="color: #859900; font-weight: bold;">return</span> rng_key, params, model
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">build_opt</span>(params):
+    opt_init, update, get_params = optimizers.adam(3e-4)
+    opt_state = opt_init(params)
+    <span style="color: #859900; font-weight: bold;">return</span> opt_state, update, get_params
+
+rng_key, params, model = build_model(rng_key)
+
+orig_opt_state, opt_update, get_params = build_opt(params)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-interesting-training-code" class="outline-5">
+<h5 id="interesting-training-code"><a href="#interesting-training-code">Interesting Part of the Training Code</a></h5>
+<div class="outline-text-5" id="text-interesting-training-code">
+<p>
+Here we implement our update methods. Notice how we use
+<code>batched_spectral_radius</code> instead of <code>jit_batched_spectral_radius</code> in
+order to give XLA more optimization freedom. Also, here we see
+conjugating the possibly complex gradients in action.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgfa2de03"><span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">batch_loss</span>(params, batch):
+    <span style="color: #268bd2;">preds</span> = model(params, batch)
+    <span style="color: #268bd2;">targets</span> = batched_spectral_radius(batch)
+    <span style="color: #859900; font-weight: bold;">return</span> jnp.mean(jnp.<span style="color: #657b83; font-weight: bold;">abs</span>(preds - targets))
+
+<span style="color: #b58900;">@jax.jit</span>
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">train_batch</span>(step, opt_state, batch):
+    <span style="color: #268bd2;">params</span> = get_params(opt_state)
+    <span style="color: #268bd2;">loss</span>, <span style="color: #268bd2;">grad</span> = jax.value_and_grad(batch_loss)(params, batch)
+    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Conjugate gradient for steepest-descent optimization.</span>
+    <span style="color: #268bd2;">grad</span> = jax.tree_util.tree_map(jnp.conj, grad)
+    <span style="color: #268bd2;">opt_state</span> = opt_update(step, grad, opt_state)
+    <span style="color: #859900; font-weight: bold;">return</span> opt_state, loss
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-Training-a-Spectral-Radius-MLP" class="outline-5">
+<h5 id="Training-a-Spectral-Radius-MLP"><a href="#Training-a-Spectral-Radius-MLP">Training a Spectral Radius MLP</a></h5>
+<div class="outline-text-5" id="text-Training-a-Spectral-Radius-MLP">
+<p>
+A really simple deep learning training loop. We generate our batches
+on-demand, taking care to update our <code>rng_key</code>, of course!
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org27be774"><span style="color: #268bd2;">opt_state</span> = orig_opt_state
+<span style="color: #268bd2;">batch_size</span> = 64
+<span style="color: #268bd2;">batch_shape</span> = (batch_size,) + input_shape
+
+<span style="color: #268bd2;">steps</span> = <span style="font-weight: bold; text-decoration: underline;">10</span>000
+<span style="color: #268bd2;">log_step_interval</span> = 1000
+<span style="color: #268bd2;">start_time</span> = time.perf_counter()
+<span style="color: #859900; font-weight: bold;">for</span> step <span style="color: #859900; font-weight: bold;">in</span> <span style="color: #657b83; font-weight: bold;">range</span>(steps):
+    <span style="color: #268bd2;">rng_key</span>, <span style="color: #268bd2;">batch</span> = jit_randn(rng_key, batch_shape, dtype=<span style="color: #657b83; font-weight: bold;">complex</span>)
+    opt_state, loss = train_batch(step, opt_state, batch)
+    <span style="color: #859900; font-weight: bold;">if</span> step % log_step_interval == 0:
+        <span style="color: #657b83; font-weight: bold;">print</span>(<span style="color: #2aa198;">'step '</span>, step, <span style="color: #2aa198;">'; loss '</span>, loss, sep=<span style="color: #2aa198;">''</span>)
+
+end_time = time.perf_counter()
+<span style="color: #657b83; font-weight: bold;">print</span>(<span style="color: #2aa198;">'Training took'</span>, end_time - start_time, <span style="color: #2aa198;">'seconds.'</span>)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-Training-Results" class="outline-5">
+<h5 id="Training-Results"><a href="#Training-Results">Training Results</a></h5>
+<div class="outline-text-5" id="text-Training-Results">
+<pre class="example" id="org1981700">
+step 0; loss 1.6026156
+step 1000; loss 0.39599544
+step 2000; loss 0.38151193
+step 3000; loss 0.4386006
+step 4000; loss 0.3645811
+step 5000; loss 0.38383436
+step 6000; loss 0.4037715
+step 7000; loss 0.3104779
+step 8000; loss 0.32223767
+step 9000; loss 0.40970623
+Training took 7.869086120001157 seconds.
+</pre>
+
+<p>
+Okay, that&rsquo;s some sound old MLP training. Let&rsquo;s get into
+parallelization already.
+</p>
+</div>
+</div>
+</div>
+
+<div id="outline-container-Multi-Node-Distribution" class="outline-4">
+<h4 id="Multi-Node-Distribution"><a href="#Multi-Node-Distribution">Multi-Node Distribution</a></h4>
+<div class="outline-text-4" id="text-Multi-Node-Distribution">
+<p>
+A quick interlude on some extra distributed use cases and GPU
+pre-allocation. These are only interesting if you plan to distribute
+code yourself and are more code snippets I wanted to leave here as a
+reference. <a href="#distributed-training">To skip these sections, click here.</a>
+</p>
+
+<p>
+The following is some setup code you would use on a
+<a href="https://slurm.schedmd.com">Slurm</a>-managed cluster, for example. But
+first, a word of caution&#x2026;
+</p>
+</div>
+
+<div id="outline-container-Multi-Node-Distributed-Setup" class="outline-5">
+<h5 id="Multi-Node-Distributed-Setup"><a href="#Multi-Node-Distributed-Setup">Multi-Node Distributed Setup</a></h5>
+<div class="outline-text-5" id="text-Multi-Node-Distributed-Setup">
+<ul class="org-ul">
+<li>Caution: Experimental, undocumented and <b>not even used, much less
+tested,</b> anywhere inside JAX!</li>
+<li><p>
+Future versions will have a function <code>jax.distributed.initialize</code>,
+working much like <a href="https://pytorch.org/docs/stable/distributed.html">PyTorch&rsquo;s</a>
+</p>
+<div class="org-src-container">
+<pre class="src src-python">torch.distributed.init_process_group(
+    [...],
+    init_method=<span style="color: #2aa198;">"tcp://[...]"</span>,  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">or "env://"</span>
+)
+</pre>
+</div></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-Multi-Node-Distributed-Setup-Code" class="outline-5">
+<h5 id="Multi-Node-Distributed-Setup-Code"><a href="#Multi-Node-Distributed-Setup-Code">Multi-Node Distributed Setup Code</a></h5>
+<div class="outline-text-5" id="text-Multi-Node-Distributed-Setup-Code">
+<p>
+<a href="https://github.com/google/jax/blob/4d6467727709de1c9ad220ac62783a18bcbf4990/jax/_src/distributed.py">Adapted from JAX source code (clickable version of link below)</a>:
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Adapted and compressed from</span>
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">https://github.com/google/jax/blob/</span><span style="color: #93a1a1; font-weight: bold; text-decoration: underline;">4d64</span><span style="color: #93a1a1;">6772</span><span style="color: #93a1a1; font-weight: bold; text-decoration: underline;">7709</span><span style="color: #93a1a1;">de1c</span><span style="color: #93a1a1; font-weight: bold; text-decoration: underline;">9ad2</span><span style="color: #93a1a1;">20ac</span><span style="color: #93a1a1; font-weight: bold; text-decoration: underline;">6278</span><span style="color: #93a1a1;">3a18</span><span style="color: #93a1a1; font-weight: bold; text-decoration: underline;">bcbf</span><span style="color: #93a1a1;">4990</span><span style="color: #93a1a1;">/jax/_src/distributed.py</span>
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">jax_distributed_initialize</span>(
+        coordinator_address, num_processes, process_id):
+    <span style="color: #859900; font-weight: bold;">if</span> process_id == 0:
+        <span style="color: #859900; font-weight: bold;">global</span> _service
+        _service = \
+            jax.lib.xla_extension.get_distributed_runtime_service(
+                coordinator_address, num_processes)
+
+    client = jax.lib.xla_extension.get_distributed_runtime_client(
+        coordinator_address, process_id)
+    client.connect()
+
+    factory = functools.partial(
+        jax.lib.xla_client.make_gpu_client, client, process_id)
+    jax.lib.xla_bridge.register_backend_factory(
+        <span style="color: #2aa198;">'gpu'</span>, factory, priority=300)
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-Handling-GPU-Memory-Pre-Allocation" class="outline-4">
+<h4 id="Handling-GPU-Memory-Pre-Allocation"><a href="#Handling-GPU-Memory-Pre-Allocation">Handling GPU Memory Pre-Allocation</a></h4>
+<div class="outline-text-4" id="text-Handling-GPU-Memory-Pre-Allocation">
+<p>
+If you ever had trouble with running out of GPU memory when using
+multi-process TensorFlow, you may have <a href="https://www.tensorflow.org/guide/gpu#limiting_gpu_memory_growth">fixed it by enabling &ldquo;GPU
+memory growing&rdquo;</a>. (The default is that TensorFlow pre-allocates a large
+block of memory in order to reduce memory fragmentation.)
+</p>
+
+<p>
+JAX does the same, so in case you need it, what follows is the JAX
+equivalent to enabling GPU memory growing in TensorFlow.
+</p>
+</div>
+
+<div id="outline-container-Disable-GPU-Memory-Pre-Allocation" class="outline-5">
+<h5 id="Disable-GPU-Memory-Pre-Allocation"><a href="#Disable-GPU-Memory-Pre-Allocation">Disable GPU Memory Pre-Allocation</a></h5>
+<div class="outline-text-5" id="text-Disable-GPU-Memory-Pre-Allocation">
+<p>
+Equivalent of the following TensorFlow:
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">import</span> tensorflow <span style="color: #859900; font-weight: bold;">as</span> tf
+
+<span style="color: #268bd2;">gpus</span> = tf.config.list_physical_devices(<span style="color: #2aa198;">'GPU'</span>)
+<span style="color: #859900; font-weight: bold;">for</span> gpu <span style="color: #859900; font-weight: bold;">in</span> gpus:
+    tf.config.experimental.set_memory_growth(gpu, <span style="color: #268bd2; font-weight: bold;">True</span>)
+</pre>
+</div>
+
+<p>
+In JAX:
+</p>
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">import</span> os
+
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Before first JAX computation.</span>
+os.<span style="color: #268bd2;">environ</span>[<span style="color: #2aa198;">'XLA_PYTHON_CLIENT_PREALLOCATE'</span>] = <span style="color: #2aa198;">'false'</span>
+</pre>
+</div>
+</div>
+</div>
+</div>
+
+<div id="outline-container-distributed-training" class="outline-4">
+<h4 id="distributed-training"><a href="#distributed-training">Distributed Training</a></h4>
+<div class="outline-text-4" id="text-distributed-training">
+</div>
+
+<div id="outline-container-Distributing-our-Training-Code" class="outline-5">
+<h5 id="Distributing-our-Training-Code"><a href="#Distributing-our-Training-Code">Distributing our Training Code</a></h5>
+<div class="outline-text-5" id="text-Distributing-our-Training-Code">
+<p>
+With all of that out of the way, let&rsquo;s finally write some distributed
+training code!
+</p>
+
+<p>
+&#x2026; What&rsquo;s that? We only need to add a single line in our
+<code>train_batch</code> function?
+</p>
+
+<p>
+Well, almost; we also need to apply the titular <code>jax.pmap</code> function
+transformation. I&rsquo;ll explain what&rsquo;s going on here after the code
+block.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org10a7fd2"><span style="color: #268bd2;">batch_axis</span> = <span style="color: #2aa198;">'batch'</span>
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">distributed_train_batch</span>(step, opt_state, batch):
+    <span style="color: #268bd2;">params</span> = get_params(opt_state)
+    <span style="color: #268bd2;">loss</span>, <span style="color: #268bd2;">grad</span> = jax.value_and_grad(batch_loss)(params, batch)
+    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">This is the only line we had to add to `train_batch`.</span>
+    <span style="color: #268bd2;">loss</span>, <span style="color: #268bd2;">grad</span> = jax.lax.pmean((loss, grad), batch_axis)
+    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Conjugate gradient for steepest-descent optimization.</span>
+    <span style="color: #268bd2;">grad</span> = jax.tree_util.tree_map(jnp.conj, grad)
+    <span style="color: #268bd2;">opt_state</span> = opt_update(step, grad, opt_state)
+    <span style="color: #859900; font-weight: bold;">return</span> opt_state, loss
+
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">`pmap` also `jit`s our function.</span>
+<span style="color: #268bd2;">pmap_train_batch</span> = jax.pmap(
+    distributed_train_batch,
+    batch_axis,
+    in_axes=(<span style="color: #268bd2; font-weight: bold;">None</span>, <span style="color: #268bd2; font-weight: bold;">None</span>, 0),
+    out_axes=(<span style="color: #268bd2; font-weight: bold;">None</span>, <span style="color: #268bd2; font-weight: bold;">None</span>),
+)
+</pre>
+</div>
+
+<p>
+This is already all the magic behind <a href="https://github.com/horovod/horovod">Horovod</a>! (Ignoring the
+super-optimized communication.)
+</p>
+
+<p>
+The first thing that should have caught your eye is the definition of
+<code>batch_axis</code> at the very top of the code block. This <code>batch_axis</code> is
+passed to both <code>jax.lax.pmean</code> and <code>jax.pmap</code> as the reduction axis
+and mapped-over axis, respectively. We need to do this because&nbsp;&#x2013; and
+I hope you start to notice a pattern here&nbsp;&#x2013; <code>jax.pmap</code> is <b>also</b>
+nestable! By having to specify an axis for <code>jax.pmap</code>, the reduction
+operations in <code>jax.lax</code> will always have an axis to refer to. We use a
+string to name the axis here, but any hashable would do.
+</p>
+
+<p>
+The call to <code>jax.lax.pmean</code> averages a tree of values over all
+processes. In our case, it averages the loss and gradient. We average
+the loss as well here because you usually want to log the globally
+averaged loss instead of the local loss to get a smoother overall
+picture (in Horovod, you need to enable this explicitly). The averaged
+gradient is then used to do the same update step on each process, so
+we don&rsquo;t need any more synchronization afterwards.
+</p>
+
+<p>
+<code>jax.pmap</code> has some other arguments here we haven&rsquo;t seen yet, namely
+<code>in_axes</code> and <code>out_axes</code>. <code>jax.vmap</code> accepts these too, and they are
+very important! With them, you control the axis of each argument that
+the function transformation maps over. If you don&rsquo;t want to map over
+an argument (maybe you are passing a single constant that you don&rsquo;t
+want to copy until it has the size of the mapped-over axis), you
+specify <code>in_axes</code> at the position of the argument as <code>None</code>. We do
+this for the training step (a single integer) and model parameters (a
+tree of matrices). However, we <i>do</i> want to map over the batch
+somehow. We specify the very first axis here.
+</p>
+
+<p>
+<code>out_axes</code> is similar, but for the output. If we wanted to collect the
+different outputs of the function transformation for each mapped-over
+input, we would specify the return values that we want to collect and
+the axis we want to collect them over at the corresponding positions
+in <code>out_axes</code>. Since we already reduce over the mapped-over values
+with the <code>jax.lax.pmean</code> call, we will not have multiple different
+outputs and thus use <code>None</code> just like for <code>in_axes</code> to prevent the
+collection.
+</p>
+</div>
+</div>
+
+<div id="outline-container-Training-a-Spectral-Radius-MLP-Distributively" class="outline-5">
+<h5 id="Training-a-Spectral-Radius-MLP-Distributively"><a href="#Training-a-Spectral-Radius-MLP-Distributively">Training a Spectral Radius MLP Distributively</a></h5>
+<div class="outline-text-5" id="text-Training-a-Spectral-Radius-MLP-Distributively">
+<p>
+Here, we reshape the original batch so we can split it over its first
+axis as desired. In the code, we obtain the <code>world_size</code> as the number
+of devices known to JAX. Going back to the multi-node setup code from
+before, if you initialize your distributed training like that,
+i.e. by starting multiple Python processes, you may want to
+use <code>world_size = jax.process_count()</code> instead. Like so often, this
+depends on your use case.
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python" id="orgdc44915"><span style="color: #268bd2;">opt_state</span> = orig_opt_state
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Since we are only using a single JAX process with (possibly</span>
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">emulated) multiple devices, we use `jax.device_count`.</span>
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Usually, this would be `jax.process_count`.</span>
+<span style="color: #268bd2;">world_size</span> = jax.device_count()
+<span style="color: #859900; font-weight: bold;">assert</span> batch_size % world_size == 0
+local_batch_size = batch_size // world_size
+
+start_time = time.perf_counter()
+<span style="color: #657b83; font-weight: bold;">print</span>(<span style="color: #2aa198;">'Training with'</span>, world_size, <span style="color: #2aa198;">'(possibly simulated) devices.'</span>)
+<span style="color: #859900; font-weight: bold;">for</span> step <span style="color: #859900; font-weight: bold;">in</span> <span style="color: #657b83; font-weight: bold;">range</span>(steps):
+    <span style="color: #268bd2;">rng_key</span>, <span style="color: #268bd2;">batch</span> = jit_randn(rng_key, batch_shape, dtype=<span style="color: #657b83; font-weight: bold;">complex</span>)
+    batch = batch.reshape(
+        (world_size, local_batch_size) + batch.shape[1:])
+    opt_state, loss = pmap_train_batch(step, opt_state, batch)
+    <span style="color: #859900; font-weight: bold;">if</span> step % log_step_interval == 0:
+        <span style="color: #657b83; font-weight: bold;">print</span>(<span style="color: #2aa198;">'step '</span>, step, <span style="color: #2aa198;">'; loss '</span>, loss, sep=<span style="color: #2aa198;">''</span>)
+
+end_time = time.perf_counter()
+<span style="color: #657b83; font-weight: bold;">print</span>(<span style="color: #2aa198;">'Distributed training took'</span>, end_time - start_time, <span style="color: #2aa198;">'seconds.'</span>)
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-Distributed-Training-Results" class="outline-5">
+<h5 id="Distributed-Training-Results"><a href="#Distributed-Training-Results">Distributed Training Results</a></h5>
+<div class="outline-text-5" id="text-Distributed-Training-Results">
+<pre class="example" id="org2cc2160">
+Training with 2 (possibly simulated) devices.
+step 0; loss 1.6025591
+step 1000; loss 0.3969112
+step 2000; loss 0.38199607
+step 3000; loss 0.4381593
+step 4000; loss 0.36498725
+step 5000; loss 0.38379186
+step 6000; loss 0.40361017
+step 7000; loss 0.3104655
+step 8000; loss 0.32245204
+step 9000; loss 0.40979913
+Distributed training took 7.309056613001303 seconds.
+</pre>
+
+<p>
+Even though I only used 2 simulated devices, training did speed up a
+bit already. Nice!
+</p>
+</div>
+</div>
+
+<div id="outline-container-Did-it-Learn%3F" class="outline-5">
+<h5 id="Did-it-Learn%3F"><a href="#Did-it-Learn%3F">Did it Learn?</a></h5>
+<div class="outline-text-5" id="text-Did-it-Learn%3F">
+<p>
+Let&rsquo;s test whether our model actually learned anything useful. Maybe
+the logged losses don&rsquo;t tell the whole story. Also, please notice that
+I JITted the <code>model</code> function for inference here; I wanted to show
+this off as it will really speed up your inference times. (Of course,
+JITting did not really make sense here since I only use the function
+once.)
+</p>
+
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #268bd2;">params</span> = get_params(opt_state)
+<span style="color: #268bd2;">jit_model</span> = jax.jit(model)
+
+<span style="color: #268bd2;">ceig_mat</span> = jnp.array([[1.0, -1.0], [1.0, 1.0]])
+<span style="color: #268bd2;">batched_ceig_mat</span> = jnp.expand_dims(ceig_mat, 0)
+
+[
+    [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'spectral radius sample'</span>],
+    [
+        <span style="color: #2aa198;">'jax_spectral_radius'</span>,
+        jax_spectral_radius(ceig_mat).item(),
+    ],
+    [
+        <span style="color: #2aa198;">'model'</span>,
+        jit_model(params, batched_ceig_mat)[0].item(),
+    ],
+]
+</pre>
+</div>
+
+<table>
+
+
+<colgroup>
+<col  class="org-left">
+
+<col  class="org-right">
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">function</th>
+<th scope="col" class="org-right">spectral radius sample</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left"><code>jax_spectral_radius</code></td>
+<td class="org-right">1.4142135381698608</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>model</code></td>
+<td class="org-right">1.4250930547714233</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+<section id="outline-container-Summary" class="outline-2">
+<h2 id="Summary"><span class="section-number-2">9.</span> <a href="#Summary">Summary</a></h2>
+<div class="outline-text-2" id="text-9">
+</div>
+<div id="outline-container-Advantages" class="outline-5">
+<h5 id="Advantages"><a href="#Advantages">Advantages</a></h5>
+<div class="outline-text-5" id="text-Advantages">
+<ul class="org-ul">
+<li>Educational <a href="https://jax.readthedocs.io">documentation</a>.</li>
+<li>Familiar API.</li>
+<li>Interoperate with TensorFlow using experimental <a href="https://github.com/google/jax/tree/9acb7891acda6a8ec12ac0b27d5cf8538eedd958/jax/experimental/jax2tf"><code>jax2tf</code></a> (included
+in JAX; despite the name, also supports TensorFlow to JAX).</li>
+<li>Faster code!</li>
+<li>More explicit, less magic, less trouble understanding.</li>
+<li>Functional style <b>will</b> avoid headaches.</li>
+<li><p>
+Look out for stabilization of <a href="https://jax.readthedocs.io/en/latest/jax.experimental.pjit.html"><code>pjit</code></a> (previously <code>sharded_jit</code>);
+even simpler Horovod, ability to JIT <b>huge</b> functions!
+</p>
+
+<p>
+<code>pjit</code> is actually much more cool than you would expect. The old name
+is a bit more descriptive here, as <code>pjit</code>&nbsp;&#x2013; aside from being a more
+abstracted <code>pmap</code>&nbsp;&#x2013; allows us to even split super large functions
+that do not fit in the memory of a single device.
+</p></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-Disadvantages" class="outline-5">
+<h5 id="Disadvantages"><a href="#Disadvantages">Disadvantages</a></h5>
+<div class="outline-text-5" id="text-Disadvantages">
+<p>
+Initial hurdles:
+</p>
+<ul class="org-ul">
+<li>Getting used to it.</li>
+<li>Sometimes not as quick to write; however, payoff in the long term.</li>
+</ul>
+<p>
+Better with time:
+</p>
+<ul class="org-ul">
+<li>Sometimes unpredictable or unstable.</li>
+<li>Lacking ecosystem.</li>
+</ul>
+<p>
+Will never change:
+</p>
+<ul class="org-ul">
+<li>Hidden functionalities/undocumented APIs; some useful code
+(intentionally?) not public.</li>
+<li>Mutating state during JITting <b>will</b> cause headaches.</li>
+<li><p>
+Backend in TensorFlow: code split and dependency.
+</p>
+
+<p>
+The code split means that the TensorFlow repository also contains
+JAX-only code. So you have another code location to keep in mind if
+you need to dive deeper into the JAX JIT for some reason.
+</p></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-Neural-Network-Libraries" class="outline-5">
+<h5 id="Neural-Network-Libraries"><a href="#Neural-Network-Libraries">Neural Network Libraries</a></h5>
+<div class="outline-text-5" id="text-Neural-Network-Libraries">
+<dl class="org-dl">
+<dt><a href="https://github.com/google/jax/tree/c1ce85203c65cd816e98422122b25320eb33539c/jax/example_libraries"><code>jax.example_libraries.stax</code></a></dt><dd>Included in JAX, bare-bones and
+requires more manual work. However, simplicity is an advantage.</dd>
+<dt><a href="https://github.com/google/flax"><code>flax</code></a></dt><dd>Most features, most user-friendly in my opinion.</dd>
+<dt><a href="https://github.com/deepmind/dm-haiku"><code>haiku</code></a></dt><dd>Goes <i>against</i> JAX&rsquo; implicit/immutable state but converts
+models back to stateless transformations. Thus, maybe better user
+experience.</dd>
+<dt><a href="https://github.com/google/objax"><code>objax</code></a></dt><dd>Similar API to <a href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html"><code>torch.nn.Module</code></a>.</dd>
+<dt><a href="https://github.com/google/trax"><code>trax</code></a></dt><dd>Focus on sequence data and large-scale training.</dd>
+</dl>
+
+<p>
+These are all made by the same company!
+</p>
+
+<p>
+Just to clarify, while the above statement can be interpreted as a
+cheap jab at Alphabet and the TensorFlow situation, I do believe that
+designing sensible APIs for JAX&rsquo; paradigms is hard. Most of these
+libraries can most likely be viewed as experiments with regard to this
+design.
+</p>
+</div>
+</div>
+
+<div id="outline-container-~functorch~" class="outline-5">
+<h5 id="~functorch~"><a href="#~functorch~"><code>functorch</code></a></h5>
+<div class="outline-text-5" id="text-~functorch~">
+<ul class="org-ul">
+<li>JAX-like function transformations (<code>vmap</code>, <code>grad</code>, &#x2026;)</li>
+<li>Stateless models</li>
+</ul>
+
+<p>
+&#x2026; <a href="https://github.com/pytorch/functorch">for PyTorch</a>! Experimental, but best of both worlds.
+</p>
+
+<p>
+When you ever have trouble batching something in PyTorch, it may help.
+Will probably be a while until it&rsquo;s included in PyTorch.
+</p>
+
+<p>
+By the way, <a href="https://pytorch.org/docs/stable/jit.html">PyTorch also has a JIT</a>!
+</p>
+
+<p>
+Since this is the extended version, you did see some results with
+PyTorch&rsquo;s JIT. All of those did not seem&#x2026; promising. The non-JITted
+PyTorch code was consistently as fast or even faster than the JITted
+version.
+</p>
+
+<p>
+However, I believe that PyTorch&rsquo;s JIT compiler&rsquo;s use case is a bit
+different, leaning more towards optimizing deep learning models for
+inference. I don&rsquo;t understand why the super simple linear algebra we
+tried to JIT did not get optimized (un-optimized, instead!) at all,
+but I did not dive into PyTorch&rsquo;s JIT and thus can&rsquo;t say too much
+about this.
+</p>
+</div>
+</div>
+
+<div id="outline-container-Thanks-for-Reading%21" class="outline-5">
+<h5 id="Thanks-for-Reading%21"><a href="#Thanks-for-Reading%21">Thanks for Reading!</a></h5>
+<div class="outline-text-5" id="text-Thanks-for-Reading%21">
+<p>
+Thank you for your attention.
+</p>
+
+<p>
+I hope you had as much fun as I had preparing.
+</p>
+</div>
+</div>
+
+<div id="outline-container-Questions%3F" class="outline-5">
+<h5 id="Questions%3F"><a href="#Questions%3F">Questions?</a></h5>
+<div class="outline-text-5" id="text-Questions%3F">
+<p>
+Questions?
+</p>
+</div>
+</div>
+</section>
+
+<section id="outline-container-Appendix" class="outline-2">
+<h2 id="Appendix"><span class="section-number-2">10.</span> <a href="#Appendix">Appendix</a></h2>
+<div class="outline-text-2" id="text-10">
+</div>
+
+<div id="outline-container-References" class="outline-5">
+<h5 id="References"><a href="#References">References</a></h5>
+<div class="outline-text-5" id="text-References">
+<ul class="org-ul">
+<li><a href="https://github.com/google/jax">JAX source repository</a> (accessed from 2021-11-18 to 2021-11-26)</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-Extra-Recommendations" class="outline-5">
+<h5 id="Extra-Recommendations"><a href="#Extra-Recommendations">Extra Recommendations</a></h5>
+<div class="outline-text-5" id="text-Extra-Recommendations">
+<div class="org-src-container">
+<pre class="src src-org">While not a reference, I want to recommend this <span style="color: #b58900; font-weight: bold; text-decoration: underline;"><a href="http://www.stochasticlifestyle.com/useful-algorithms-that-are-not-optimized-by-jax-pytorch-or-tensorflow/">article</a></span> and
+<span style="color: #b58900; font-weight: bold; text-decoration: underline;"><a href="https://arxiv.org/abs/2105.03918">corresponding paper</a></span> on limitations of XLA and TorchScript compilation.
+
+Maybe of interest: there are already JAX libraries for <span style="color: #b58900; font-weight: bold; text-decoration: underline;"><a href="https://github.com/google/brax">differentiable</a></span><a href="https://github.com/google/brax">
+</a><span style="color: #b58900; font-weight: bold; text-decoration: underline;"><a href="https://github.com/google/brax">rigid-body physics simulation</a></span> and <span style="color: #b58900; font-weight: bold; text-decoration: underline;"><a href="https://github.com/google/jax-md">molecular dynamics</a></span>. You will find
+others fields covered as well.
+</pre>
+</div>
+</div>
+</div>
+</section>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+
+<div class="footdef"><sup><a id="fn.1" class="footnum" href="#fnr.1" role="doc-backlink">1</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+Stable since PyTorch 1.9.0, released in June 2021.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.2" class="footnum" href="#fnr.2" role="doc-backlink">2</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+<a href="https://tanelp.github.io/posts/a-bug-that-plagues-thousands-of-open-source-ml-projects/">Article about global mutable RNG state causing issues for
+<b>many</b> PyTorch users.</a>
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.3" class="footnum" href="#fnr.3" role="doc-backlink">3</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+Some of the Autograd developers took part in building JAX upon
+its ideas.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.4" class="footnum" href="#fnr.4" role="doc-backlink">4</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+Why is the second <code>a</code> considered different from the first? The
+default <a href="https://docs.python.org/3/reference/datamodel.html#object.__hash__"><code>__hash__</code></a> implementation is based on the object&rsquo;s <a href="https://docs.python.org/3/library/functions.html#id"><code>id</code>, its
+location in memory</a>. (Both of these are CPython implementation
+details.)
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.5" class="footnum" href="#fnr.5" role="doc-backlink">5</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+That way, the compiler gets the most options for optimization.
+Also, an already <code>jit</code>&#8203;ted inner function cannot be optimized further.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.6" class="footnum" href="#fnr.6" role="doc-backlink">6</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+There are multiple XLA runtimes.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.7" class="footnum" href="#fnr.7" role="doc-backlink">7</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+C family of languages, to be exact.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.8" class="footnum" href="#fnr.8" role="doc-backlink">8</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+Not quite sure since <a href="https://github.com/tensorflow/tensorflow/blob/40670552faa92fb353bd0e4e5efed26979f239c5/tensorflow/compiler/xla/service/cpu/compiler_functor.cc#L69-L70">they only disable <code>--loop-unroll</code></a>.
+</p></div></div>
+
+<div class="footdef"><sup><a id="fn.9" class="footnum" href="#fnr.9" role="doc-backlink">9</a></sup> <div class="footpara" role="doc-footnote"><p class="footpara">
+The <a href="https://www.mpi-forum.org">Message Passing Interface</a> (MPI) is a standard in parallel
+computing.
+</p></div></div>
+
+
+</div>
+</div></article>
+<footer id="postamble" class="org-status">
+<hr>
+<address>
+<span id="contact-text">Please contact me at <a href="mailto:janpublicebert@posteo.net">janpublicebert@posteo.net</a>.</span>
+</address>
+<div id="status-lines">
+<a href="../sitemap.html" title="Sitemap" class="hidden-link" id="nethack-name">Sitemap </a><a href="https://nethack.org" title="The design reference" class="hidden-link" id="nethack-attributes">The design reference</a>
+<br>
+<span id="nethack-stats"></span>
+</div>
+<span id="footer-copyright">(C)&nbsp;<time datetime="2021">2021</time> Jan Ebert <a accesskey="<" href="#top" title="To top of the page" class="hidden-link" id="top-of-page">&lt;</a><a accesskey="t" href="#top"></a><a accesskey=">" href="#postamble"></a><a accesskey="b" href="#postamble"></a></span>
+</footer>
+</body>
+</html>
