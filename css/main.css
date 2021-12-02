@@ -130,6 +130,15 @@ pre {
 	margin: 1.2em;
 }
 
+/* Math */
+
+@media (prefers-color-scheme: dark) {
+	.MathJax {
+		-webkit-filter: invert(1) hue-rotate(180deg);
+		filter: invert(1) hue-rotate(180deg);
+	}
+}
+
 /* Tables */
 
 .org-right {
