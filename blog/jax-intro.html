@@ -1355,8 +1355,9 @@ Oops! It seems there is a discrepancy here&#x2026;
 </p>
 
 <p>
-Without going too much into the math, steepest-descent algorithms need
-the conjugate of a complex gradient in order to walk in the correct
+Without going too much into the math, when optimizing a function with
+complex inputs and real outputs, steepest-descent algorithms need the
+conjugate of the complex gradient in order to walk in the correct
 direction. As PyTorch is a deep learning framework first-and-foremost,
 it conjugates its gradients by default so users can go plug-and-play
 when fooling around with complex numbers and optimization.
