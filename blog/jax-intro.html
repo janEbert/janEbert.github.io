@@ -2602,6 +2602,7 @@ the magic! I&rsquo;ll let the below timings speak for themselves.
 <span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">looped_spectral_radius</span>(batch):
     <span style="color: #859900; font-weight: bold;">return</span> <span style="color: #657b83; font-weight: bold;">list</span>(<span style="color: #657b83; font-weight: bold;">map</span>(jax_spectral_radius, batch))
 
+<span style="color: #268bd2;">jit_looped_spectral_radius</span> = jax.jit(looped_spectral_radius)
 <span style="color: #268bd2;">batched_spectral_radius</span> = jax.vmap(jax_spectral_radius)
 <span style="color: #268bd2;">jit_batched_spectral_radius</span> = jax.jit(batched_spectral_radius)
 </pre>
@@ -2624,17 +2625,22 @@ the magic! I&rsquo;ll let the below timings speak for themselves.
 <tbody>
 <tr>
 <td class="org-left"><code>looped</code></td>
-<td class="org-right">10.771453108998685</td>
+<td class="org-right">10.506742246001522</td>
+</tr>
+
+<tr>
+<td class="org-left"><code>jit_looped</code></td>
+<td class="org-right">1.7194310759987275</td>
 </tr>
 
 <tr>
 <td class="org-left"><code>batched</code></td>
-<td class="org-right">3.7003866220002237</td>
+<td class="org-right">3.65071794799951</td>
 </tr>
 
 <tr>
 <td class="org-left"><code>jit_batched</code></td>
-<td class="org-right">0.9432253269987996</td>
+<td class="org-right">0.9865755659993738</td>
 </tr>
 </tbody>
 </table>
