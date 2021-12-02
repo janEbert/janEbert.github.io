@@ -189,6 +189,7 @@ Dealing with performance, machine learning, simulations, mathematics and program
 <li><a href="#What-is-Batching">What is Batching</a></li>
 <li><a href="#~vmap~%3A-No-Batching-Required-2"><code>vmap</code>: No Batching Required</a></li>
 <li><a href="#More-Batching">More Batching</a></li>
+<li><a href="#More-Batching-Results">More Batching Results</a></li>
 </ul>
 </li>
 </ul>
@@ -817,10 +818,15 @@ rands
 <div class="outline-text-5" id="text-How-to-Take-Gradients">
 <p>
 JAX&rsquo; <code>grad</code> function transformation takes a function we want to
-differentiate as input and returns its gradient given arbitrary
-inputs. By default, it takes the derivative with regard to the first
-argument. Multiple <code>jax.grad</code> applications can be nested to take
-higher-order derivatives.
+differentiate as input and returns another function calculating the
+original one&rsquo;s gradient given arbitrary inputs. By default, it takes
+the derivative with regard to the first argument. Multiple <code>jax.grad</code>
+applications can be nested to take higher-order derivatives.
+</p>
+
+<p>
+Another Python syntax thing here, the <code>**</code> is the exponentiation
+operator. If you&rsquo;re curious, <code>^</code> is used for a bitwise exclusive or.
 </p>
 
 <div class="org-src-container">
@@ -830,9 +836,9 @@ higher-order derivatives.
 <span style="color: #268bd2;">x</span> = 1.0
 <span style="color: #268bd2;">y</span> = 2.0
 
-<span style="color: #268bd2;">grad_x_fn</span> = jax.grad(expo_fn)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">4x**3</span>
-<span style="color: #268bd2;">grad2_x_fn</span> = jax.grad(grad_x_fn)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">12x**2</span>
-<span style="color: #268bd2;">grad3_x_fn</span> = jax.grad(grad2_x_fn)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">24x**1</span>
+<span style="color: #268bd2;">grad_x_fn</span> = jax.grad(expo_fn)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">4x^3</span>
+<span style="color: #268bd2;">grad2_x_fn</span> = jax.grad(grad_x_fn)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">12x^2</span>
+<span style="color: #268bd2;">grad3_x_fn</span> = jax.grad(grad2_x_fn)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">24x</span>
 [
     [<span style="color: #2aa198;">'function'</span>, r<span style="color: #2aa198;">'\partial{}expo_fn/\partial{}\(x\)'</span>],
     [<span style="color: #2aa198;">'grad_x'</span>, grad_x_fn(x, y).item()],
@@ -889,7 +895,7 @@ argument. We can also specify multiple <code>argnums</code>.
 <pre class="src src-python"><span style="color: #268bd2;">x</span> = 1.0
 <span style="color: #268bd2;">y</span> = 2.0
 
-<span style="color: #268bd2;">grad_y_fn</span> = jax.grad(expo_fn, argnums=1)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">ln(y) * 2**y</span>
+<span style="color: #268bd2;">grad_y_fn</span> = jax.grad(expo_fn, argnums=1)  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">ln(y) &#183; 2^y</span>
 grad_xy_fn = jax.grad(expo_fn, argnums=(0, 1))
 [
     [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'result'</span>],
@@ -932,12 +938,14 @@ grad_xy_fn = jax.grad(expo_fn, argnums=(0, 1))
 <h5 id="Differentiation-and-Outputs"><a href="#Differentiation-and-Outputs">Differentiation and Outputs</a></h5>
 <div class="outline-text-5" id="text-Differentiation-and-Outputs">
 <p>
-In machine learning, we really like to monitor our <i>loss values</i> of
-whose function we take the gradient. In order to not have to evaluate
-the function twice and losing precious performance, JAX offers the
-<code>jax.value_and_grad</code> function transformation which returns the result
+In machine learning, we really like to monitor our <i>loss values</i>,
+which are the non-differentiated results of the function we
+differentiate (i.e. the value we want to minimize). In
+order to not have to evaluate the function twice and lose precious
+performance, JAX offers the <code>jax.value_and_grad</code> function
+transformation which returns a new function that calculates the result
 of the function as well as its gradient. Now we can log our losses and
-sleep again.
+sleep well again.
 </p>
 
 <div class="org-src-container">
@@ -997,6 +1005,12 @@ its tree of return values needs some special care to deconstruct:
 (result, aux), grad = result_aux_grad_fn(x, y)
 </pre>
 </div>
+
+<p>
+By the way, if you ever want to disable gradient computation inside a
+<code>jax.grad</code> context, <a href="https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.stop_gradient.html">you can use <code>jax.lax.stop_gradient</code></a>. Its use is a
+bit unintuitive, so I&rsquo;d recommend checking out the link.
+</p>
 </div>
 </div>
 </div>
@@ -1699,7 +1713,7 @@ jit_randn_time = time_str(
 </table>
 
 <p>
-A 25&nbsp;% reduction! Not bad at all, especially since we sholdn&rsquo;t
+A 25&nbsp;% reduction! Not bad at all, especially since we shouldn&rsquo;t
 really have much room to optimize here.
 </p>
 
@@ -1708,11 +1722,13 @@ Let&rsquo;s see how PyTorch does:
 </p>
 
 <div class="org-src-container">
-<pre class="src src-python"><span style="color: #268bd2;">torch_randn_time</span> = time_str(
-    <span style="color: #2aa198;">'torch.randn((100, 100), requires_grad=True); '</span>
+<pre class="src src-python"><span style="color: #268bd2;">np_rng</span> = np.random.default_rng()
+<span style="color: #268bd2;">np_randn_time</span> = time_str(<span style="color: #2aa198;">'np_rng.normal(size=(100, 100))'</span>)
+torch_randn_time = time_str(
+    <span style="color: #2aa198;">'torch.randn((100, 100)); '</span>
     <span style="color: #2aa198;">'torch.cuda.synchronize()'</span>
 )
-[[<span style="color: #2aa198;">'torch_randn'</span>, torch_randn_time]]
+[[<span style="color: #2aa198;">'np_randn'</span>, np_randn_time], [<span style="color: #2aa198;">'torch_randn'</span>, torch_randn_time]]
 </pre>
 </div>
 
@@ -1726,25 +1742,21 @@ Let&rsquo;s see how PyTorch does:
 </colgroup>
 <tbody>
 <tr>
+<td class="org-left"><code>np_randn</code></td>
+<td class="org-right">0.6026334530001805</td>
+</tr>
+
+<tr>
 <td class="org-left"><code>torch_randn</code></td>
-<td class="org-right">0.2515706809972471</td>
+<td class="org-right">0.25071304299990516</td>
 </tr>
 </tbody>
 </table>
 
 <p>
-We kept the playing field level, here: as JAX allows gradient
-computation by default, we enable the same for PyTorch. By the way, if
-you ever want to disable gradient computation, <a href="https://jax.readthedocs.io/en/latest/_autosummary/jax.lax.stop_gradient.html">you can use
-<code>jax.lax.stop_gradient</code></a>. Its use is a bit unintuitive, so I&rsquo;d
-recommend checking out the link.
-</p>
-
-<p>
-Back to business: for some reason, PyTorch is quite a bit faster at
-generating random numbers (3 times as fast as JIT-compiled JAX!). I
-did not analyze this and can&rsquo;t say much more about this as there can
-be a myriad of reasons.
+Apparently, PyTorch is super good at generating random numbers (3
+times as fast as JIT-compiled JAX!). I did not analyze this and can&rsquo;t
+say much more about this as there can be a myriad of reasons.
 </p>
 </div>
 </div>
@@ -1979,6 +1991,29 @@ Warning: assembly-like language below! Don&rsquo;t worry about reading this,
 I&rsquo;ll give the gist of it below.
 </p>
 
+<pre class="example" id="org34ea721">
+define dso_local i32 @sum(i32 %0) local_unnamed_addr #0 {
+  %2 = icmp sgt i32 %0, 0
+  br i1 %2, label %3, label %13
+
+3:                                                ; preds = %1
+  %4 = add i32 %0, -1
+  %5 = zext i32 %4 to i33
+  %6 = add i32 %0, -2
+  %7 = zext i32 %6 to i33
+  %8 = mul i33 %5, %7
+  %9 = lshr i33 %8, 1
+  %10 = trunc i33 %9 to i32
+  %11 = add i32 %10, %0
+  %12 = add i32 %11, -1
+  br label %13
+
+13:                                               ; preds = %3, %1
+  %14 = phi i32 [ 0, %1 ], [ %12, %3 ]
+  ret i32 %14
+}
+</pre>
+
 <p>
 So, without focusing too much on the details and interpreting this
 intuitively: please believe me that LLVM converted our <code>sum</code> function
@@ -2130,6 +2165,29 @@ cat benchmark_sum.ll <span style="color: #b58900; font-weight: bold;">\</span>
 </pre>
 </div>
 
+<pre class="example" id="org479f08c">
+define dso_local i32 @sum(i32 %0) local_unnamed_addr #0 {
+  %2 = icmp sgt i32 %0, 0
+  br i1 %2, label %3, label %13
+
+3:                                                ; preds = %1
+  %4 = add i32 %0, -1
+  %5 = zext i32 %4 to i33
+  %6 = add i32 %0, -2
+  %7 = zext i32 %6 to i33
+  %8 = mul i33 %5, %7
+  %9 = lshr i33 %8, 1
+  %10 = trunc i33 %9 to i32
+  %11 = add i32 %10, %0
+  %12 = add i32 %11, -1
+  br label %13
+
+13:                                               ; preds = %3, %1
+  %14 = phi i32 [ 0, %1 ], [ %12, %3 ]
+  ret i32 %14
+}
+</pre>
+
 <p>
 Execute the same number of times as we do with <code>time_str</code> and add up
 the timings.
@@ -2143,6 +2201,13 @@ seq 5000 <span style="color: #b58900; font-weight: bold;">\</span>
     | awk <span style="color: #2aa198;">'/dur/ {total+=$2} END {print total}'</span>
 </pre>
 </div>
+
+<pre class="example">
+sum 1249975000
+dur 9.532824124368238e-130
+4.76641e-126
+</pre>
+
 
 <p>
 I copy-pasted this number at a later location so that I was able to
@@ -2246,18 +2311,16 @@ better idea how fast <code>jit_sum_up</code> <i>should</i> be in the best case.
     <span style="color: #859900; font-weight: bold;">return</span> limit * (limit - 1) // 2
 
 [
-    [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'time [s]'</span>, <span style="color: #2aa198;">'result'</span>, <span style="color: #2aa198;">'gradient'</span>],
+    [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'time [s]'</span>, <span style="color: #2aa198;">'result'</span>],
     [
         <span style="color: #2aa198;">'jit_sum_up'</span>,
         jax_jit_time,
         jit_sum_up(limit).item(),
-        jax.grad(jax_sum_up, argnums=0)(<span style="color: #657b83; font-weight: bold;">float</span>(limit)).item(),
     ],
     [
         <span style="color: #2aa198;">'sum_up_const'</span>,
         time_str(<span style="color: #2aa198;">'sum_up_const(limit)'</span>),
         sum_up_const(limit),
-        jax.grad(sum_up_const, argnums=0)(<span style="color: #657b83; font-weight: bold;">float</span>(limit)).item(),
     ],
 ]
 </pre>
@@ -2277,15 +2340,12 @@ better idea how fast <code>jit_sum_up</code> <i>should</i> be in the best case.
 <col  class="org-right">
 
 <col  class="org-right">
-
-<col  class="org-right">
 </colgroup>
 <thead>
 <tr>
 <th scope="col" class="org-left">function</th>
 <th scope="col" class="org-right">time [s]</th>
 <th scope="col" class="org-right">result</th>
-<th scope="col" class="org-right">gradient</th>
 </tr>
 </thead>
 <tbody>
@@ -2293,14 +2353,12 @@ better idea how fast <code>jit_sum_up</code> <i>should</i> be in the best case.
 <td class="org-left"><code>jit_sum_up</code></td>
 <td class="org-right">0.1480330039994442</td>
 <td class="org-right">1249975000</td>
-<td class="org-right">0.0</td>
 </tr>
 
 <tr>
 <td class="org-left"><code>sum_up_const</code></td>
 <td class="org-right">0.0008629900003143121</td>
 <td class="org-right">1249975000</td>
-<td class="org-right">0.0</td>
 </tr>
 </tbody>
 </table>
@@ -2531,8 +2589,9 @@ our old version <code>jax_spectral_radius</code> is not batched already.
 </p>
 
 <p>
-Notice also that you can combine <code>jax.jit</code> with <code>jax.vmap</code>&nbsp;&#x2013;
-quite the magic! I&rsquo;ll let the below timings speak for themselves.
+Notice also that you can combine <code>jax.jit</code> with <code>jax.vmap</code>&nbsp;&#x2013; any of
+the function transformations in JAX are arbitrarily nestable; quite
+the magic! I&rsquo;ll let the below timings speak for themselves.
 </p>
 
 <div class="org-src-container">
@@ -2595,6 +2654,80 @@ Since we are going to JIT-compile PyTorch&rsquo;s TorchScript again, you
 need to save the following code block to <code>torch_batching.py</code>.
 </p>
 
+<div class="org-src-container">
+<pre class="src src-python"><span style="color: #859900; font-weight: bold;">import</span> torch
+
+<span style="color: #657b83; font-weight: bold;">__all__</span> = [<span style="color: #2aa198;">'torch_batched_spectral_radius'</span>, <span style="color: #2aa198;">'torch_jit_batched_spectral_radius'</span>]
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">torch_batched_spectral_radius</span>(mat):
+    <span style="color: #268bd2;">eigvals</span> = torch.linalg.eigvals(mat)
+    <span style="color: #268bd2;">spectral_radius</span> = torch.<span style="color: #657b83; font-weight: bold;">max</span>(torch.<span style="color: #657b83; font-weight: bold;">abs</span>(eigvals), -1)
+    <span style="color: #859900; font-weight: bold;">return</span> spectral_radius
+
+<span style="color: #268bd2;">torch_jit_batched_spectral_radius</span> = torch.jit.script(
+    torch_batched_spectral_radius)
+</pre>
+</div>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org842cbfe"><span style="color: #859900; font-weight: bold;">from</span> torch_batching <span style="color: #859900; font-weight: bold;">import</span> *
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">np_batched_spectral_radius</span>(mat):
+    <span style="color: #268bd2;">eigvals</span> = np.linalg.eigvals(mat)
+    <span style="color: #268bd2;">spectral_radius</span> = np.<span style="color: #657b83; font-weight: bold;">max</span>(np.<span style="color: #657b83; font-weight: bold;">abs</span>(eigvals), -1)
+    <span style="color: #859900; font-weight: bold;">return</span> spectral_radius
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">jax_manually_batched_spectral_radius</span>(mat):
+    <span style="color: #268bd2;">eigvals</span> = jnp.linalg.eigvals(mat)
+    <span style="color: #268bd2;">spectral_radius</span> = jnp.<span style="color: #657b83; font-weight: bold;">max</span>(jnp.<span style="color: #657b83; font-weight: bold;">abs</span>(eigvals), -1)
+    <span style="color: #859900; font-weight: bold;">return</span> spectral_radius
+
+<span style="color: #268bd2;">jax_jit_manually_batched_spectral_radius</span> = jax.jit(
+    jax_manually_batched_spectral_radius)
+
+<span style="color: #268bd2;">np_batch</span> = np.array(batch)
+<span style="color: #268bd2;">torch_batch</span> = torch.from_numpy(np_batch)
+
+[
+    [<span style="color: #2aa198;">'function'</span>, <span style="color: #2aa198;">'time [s]'</span>],
+    [
+        <span style="color: #2aa198;">'np_batched'</span>,
+        time_str(<span style="color: #2aa198;">'np_batched_spectral_radius(np_batch)'</span>),
+    ],
+    [
+        <span style="color: #2aa198;">'jax_manually_batched'</span>,
+        time_str(
+            <span style="color: #2aa198;">'jax_manually_batched_spectral_radius(batch).block_until_ready()'</span>),
+    ],
+    [
+        <span style="color: #2aa198;">'jax_jit_manually_batched'</span>,
+        time_str(
+            <span style="color: #2aa198;">'jax_jit_manually_batched_spectral_radius(batch)'</span>
+            <span style="color: #2aa198;">'.block_until_ready()'</span>),
+    ],
+    [
+        <span style="color: #2aa198;">'torch_batched'</span>,
+        time_str(
+            <span style="color: #2aa198;">'torch_batched_spectral_radius(torch_batch); '</span>
+            <span style="color: #2aa198;">'torch.cuda.synchronize()'</span>
+        ),
+    ],
+    [
+        <span style="color: #2aa198;">'torch_jit_batched'</span>,
+        time_str(
+            <span style="color: #2aa198;">'torch_jit_batched_spectral_radius(torch_batch); '</span>
+            <span style="color: #2aa198;">'torch.cuda.synchronize()'</span>
+        ),
+    ],
+]
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-More-Batching-Results" class="outline-5">
+<h5 id="More-Batching-Results"><a href="#More-Batching-Results">More Batching Results</a></h5>
+<div class="outline-text-5" id="text-More-Batching-Results">
 <table>
 
 
@@ -2638,14 +2771,9 @@ need to save the following code block to <code>torch_batching.py</code>.
 </table>
 
 <p>
-When comparing these timings, keep two things in mind:
+When comparing these timings, keep in mind that we are not running on
+the GPU.
 </p>
-
-<ol class="org-ol">
-<li>We are not running on the GPU.</li>
-<li>NumPy does not let you differentiate its functions. Creating a
-computational graph in the background takes some time.</li>
-</ol>
 </div>
 </div>
 </section>
@@ -2680,6 +2808,17 @@ os.<span style="color: #268bd2;">environ</span>[<span style="color: #2aa198;">'X
 )
 </pre>
 </div>
+
+<p>
+<code>jax.pmap</code> is actually not just related to <code>jax.vmap</code> in name&nbsp;&#x2013; the
+functions do the exact same thing, just different: <code>jax.vmap</code> batches
+its function and can be imagined as a <code>for</code>-loop over the mapped-over
+axis. <code>jax.pmap</code> also batches its function but is instead a parallelly
+executed <code>for</code>-loop. That&rsquo;s really all there is to it; when you know
+<code>jax.vmap</code>, you know <code>jax.pmap</code>. Of course, the parallelism offers
+some extra functionalities which is exactly what we are going to be
+learning in this section.
+</p>
 </div>
 </div>
 
@@ -2712,7 +2851,8 @@ In code:
 <div class="outline-text-3" id="text-8-1">
 <p>
 The following is a case study of using JAX to parallelize simple deep
-learning code.
+learning code. We are going to train a simple multilayer perceptron
+and teach it to calculate spectral radii.
 </p>
 
 <p>
@@ -2726,7 +2866,7 @@ You can substitute &ldquo;Horovod&rdquo; with whatever you like to use, though; 
 it MPI, <a href="https://www.tensorflow.org/guide/distributed_training"><code>tf.distribute.Strategy</code></a>, <a href="https://pytorch.org/docs/stable/distributed.html"><code>torch.distributed</code></a>,
 <code>torch.distributed</code> with <a href="https://pytorch.org/docs/stable/generated/torch.nn.parallel.DistributedDataParallel.html"><code>torch.nn.parallel.DistributedDataParallel</code></a>
 (DDP), or whatever else you know and love. The principles are all the
-same, although our JAX implementation is more similar to Horovd than
+same, although our JAX implementation is more similar to Horovod than
 PyTorch DDP, for example (due to global instead of node-local
 splitting of the batch).
 </p>
@@ -2902,7 +3042,7 @@ parallelization already.
 <h4 id="Multi-Node-Distribution"><a href="#Multi-Node-Distribution">Multi-Node Distribution</a></h4>
 <div class="outline-text-4" id="text-Multi-Node-Distribution">
 <p>
-A quick interlude on some extra distributed use cases and GPU
+A quick interlude on some extra distributed use cases and GPU memory
 pre-allocation. These are only interesting if you plan to distribute
 code yourself and are more code snippets I wanted to leave here as a
 reference. <a href="#distributed-training">To skip these sections, click here.</a>
@@ -3071,7 +3211,7 @@ The first thing that should have caught your eye is the definition of
 <code>batch_axis</code> at the very top of the code block. This <code>batch_axis</code> is
 passed to both <code>jax.lax.pmean</code> and <code>jax.pmap</code> as the reduction axis
 and mapped-over axis, respectively. We need to do this because&nbsp;&#x2013; and
-I hope you start to notice a pattern here&nbsp;&#x2013; <code>jax.pmap</code> is <b>also</b>
+I hope you&rsquo;ve started to notice a pattern here&nbsp;&#x2013; <code>jax.pmap</code> is <b>also</b>
 nestable! By having to specify an axis for <code>jax.pmap</code>, the reduction
 operations in <code>jax.lax</code> will always have an axis to refer to. We use a
 string to name the axis here, but any hashable would do.
