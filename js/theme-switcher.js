@@ -80,6 +80,11 @@ class JanWebsiteThemeSwitcher {
 		pre, code {
 			border-color: var(--code-border-color-${brightnessMode});
 			background-color: var(--code-background-color-${brightnessMode});
+		}
+
+		.MathJax {
+			-webkit-filter: invert(1) hue-rotate(180deg);
+			filter: invert(1) hue-rotate(180deg);
 		}`;
 
 				BrightnessModeToggle.toggleTransitions();
