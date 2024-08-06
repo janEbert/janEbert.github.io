@@ -285,12 +285,12 @@ Dealing with performance, machine learning, simulations, mathematics and program
 <div class="outline-text-3" id="text-1-1">
 <p>
 I created this as a slide-based presentation for the Helmholtz AI Food
-for Thought seminar in order to introduce researchers from various
-backgrounds to JAX. This text was produced from the same <a href="https://orgmode.org">Org</a> source,
-with some extra commentary text interleaved. That&rsquo;s why the text may
-feel choppy at times and code snippets are more compressed instead of
-following good style. I tried my best to explain everything I
-mentioned in the presentation as well.
+for Thought seminar on December 02, 2021, in order to introduce
+researchers from various backgrounds to JAX. This text was produced
+from the same <a href="https://orgmode.org">Org</a> source, with some extra commentary text interleaved.
+That&rsquo;s why the text may feel choppy at times and code snippets are
+more compressed instead of following good style. I tried my best to
+explain everything I mentioned in the presentation as well.
 </p>
 
 <p>
@@ -394,6 +394,53 @@ achieves the following:
 <li>Less print output.</li>
 <li>Initialize JAX and PyTorch so we don&rsquo;t see warnings later.</li>
 </ul>
+
+<div class="org-src-container">
+<pre class="src src-python" id="org7b614f7"><span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Need to do this before even the `jax.config` update.</span>
+os.<span style="color: #268bd2;">environ</span>[<span style="color: #2aa198;">'XLA_FLAGS'</span>] = <span style="color: #2aa198;">' '</span>.join([
+    os.getenv(<span style="color: #2aa198;">'XLA_FLAGS'</span>, <span style="color: #2aa198;">''</span>),
+    <span style="color: #2aa198;">'--xla_dump_to=./generated'</span>,
+    <span style="color: #2aa198;">'--xla_force_host_platform_device_count=2'</span>,
+])
+jax.lib.xla_bridge.get_backend.cache_clear()
+
+<span style="color: #859900; font-weight: bold;">try</span>:
+    <span style="color: #268bd2;">gpus</span> = jax.local_devices(<span style="color: #268bd2; font-weight: bold;">None</span>, <span style="color: #2aa198;">'gpu'</span>)
+<span style="color: #859900; font-weight: bold;">except</span> <span style="color: #b58900;">RuntimeError</span>:
+    <span style="color: #268bd2;">gpus</span> = <span style="color: #268bd2; font-weight: bold;">None</span>
+<span style="color: #268bd2;">has_gpu</span> = <span style="color: #657b83; font-weight: bold;">bool</span>(gpus) <span style="color: #859900; font-weight: bold;">and</span> torch.cuda.is_available()
+
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">By default, JAX runs on the GPU (if available) while PyTorch by</span>
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">default runs on the CPU. So we choose the common denominator depending</span>
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">on GPU availability.</span>
+<span style="color: #859900; font-weight: bold;">if</span> <span style="color: #859900; font-weight: bold;">not</span> has_gpu:
+    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Force JAX on CPU.</span>
+    jax.config.update(<span style="color: #2aa198;">'jax_platform_name'</span>, <span style="color: #2aa198;">'cpu'</span>)
+    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">PyTorch will complain if we call this without a GPU active.</span>
+    torch.cuda.<span style="color: #268bd2;">synchronize</span> = <span style="color: #859900; font-weight: bold;">lambda</span>: <span style="color: #268bd2; font-weight: bold;">None</span>
+<span style="color: #859900; font-weight: bold;">else</span>:
+    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Force PyTorch on GPU.</span>
+    torch.cuda.set_device(0)
+
+<span style="color: #268bd2;">print_precision</span> = 3
+np.set_printoptions(precision=print_precision)
+jnp.set_printoptions(precision=print_precision)
+torch.set_printoptions(precision=print_precision)
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">round_complex</span>(val, precision):
+    <span style="color: #859900; font-weight: bold;">if</span> <span style="color: #657b83; font-weight: bold;">isinstance</span>(val, <span style="color: #657b83; font-weight: bold;">complex</span>):
+        <span style="color: #859900; font-weight: bold;">return</span> <span style="color: #657b83; font-weight: bold;">round</span>(val.real, precision) + <span style="color: #657b83; font-weight: bold;">round</span>(val.imag, precision) * 1j
+    <span style="color: #859900; font-weight: bold;">return</span> <span style="color: #657b83; font-weight: bold;">round</span>(val, precision)
+
+<span style="color: #859900; font-weight: bold;">def</span> <span style="color: #268bd2;">round_tree</span>(tree, precision=print_precision):
+    <span style="color: #859900; font-weight: bold;">return</span> jax.tree_util.tree_map(<span style="color: #859900; font-weight: bold;">lambda</span> x: round_complex(x, precision), tree)
+
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Initialize JAX.</span>
+jnp.array(0)
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Initialize PyTorch.</span>
+torch.tensor(0)
+</pre>
+</div>
 </div>
 </div>
 
@@ -1920,7 +1967,7 @@ uses <a href="https://llvm.org">LLVM</a> for compilation.
     <span style="color: #859900; font-weight: bold;">return</span> total;
 }
 
-<span style="color: #b58900;">int</span> <span style="color: #268bd2;">main</span>(<span style="color: #b58900;">int</span> <span style="color: #268bd2;">argc</span>, <span style="color: #b58900;">char</span>** <span style="color: #268bd2;">argnv</span>)
+<span style="color: #b58900;">int</span> <span style="color: #268bd2;">main</span>(<span style="color: #b58900;">int</span> <span style="color: #268bd2;">argc</span>, <span style="color: #b58900;">char</span>** <span style="color: #268bd2;">argv</span>)
 {
     printf(<span style="color: #2aa198;">"%d\n"</span>, sum(<span style="font-weight: bold; text-decoration: underline;">50</span>000));
     <span style="color: #859900; font-weight: bold;">return</span> 0;
@@ -2592,6 +2639,11 @@ our old version <code>jax_spectral_radius</code> is not batched already.
 Notice also that you can combine <code>jax.jit</code> with <code>jax.vmap</code>&nbsp;&#x2013; any of
 the function transformations in JAX are arbitrarily nestable; quite
 the magic! I&rsquo;ll let the below timings speak for themselves.
+</p>
+
+<p>
+Why prefer the <code>jax.jit</code>-&#8203;<code>jax.vmap</code> combo over a <code>jax.jit</code>&#8203;ted loop? If
+anything, it keeps the computational graph simpler!
 </p>
 
 <div class="org-src-container">
