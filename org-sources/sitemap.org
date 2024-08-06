@@ -7,4 +7,5 @@
 - [[file:theindex.org][Index]]
 - [[file:index.org][Home]]
 - blog
+  - [[file:blog/jax-intro.org][JAX is for Joy, AutoDiff, and Xeleration]]
   - [[file:blog/test.org][Test Blog Post]]
